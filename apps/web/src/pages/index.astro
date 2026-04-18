@@ -1,0 +1,1050 @@
+---
+import Base from '../layouts/Base.astro';
+import Button from '../components/ui/Button.astro';
+import Chip from '../components/ui/Chip.astro';
+import EvidenceRow from '../components/ui/EvidenceRow.astro';
+---
+
+<Base>
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow mono">Crowd-sourced · FTC-seeded · iOS First</p>
+          <h1>Silence spam calls. <em>See who they were.</em></h1>
+          <p class="lead narrative">
+            Ringdocket installs a shared block list on your iPhone. Spammers never get through. Then the dashboard shows you the campaigns you helped take down &mdash; who reported them, what carriers let them through, and when they went dark.
+          </p>
+          <div class="cta-row">
+            <Button href="#download" variant="primary">Get it on iOS</Button>
+            <Button href="#how" variant="secondary">See the ledger</Button>
+            <span class="cta-note mono">Free &middot; no tracking &middot; unlimited blocking</span>
+          </div>
+        </div>
+
+        <aside class="live-ledger" aria-label="Live activity ledger">
+          <div class="head">
+            <span class="title ui-text">Live network ledger</span>
+            <span class="pulse mono">live</span>
+          </div>
+
+          <EvidenceRow>
+            <div slot="primary">
+              <span class="number">(402) 555&#8209;0142</span>
+              <span class="meta">Medicare Card Renewal Ring · Apr 18 09:41</span>
+            </div>
+            <Chip slot="state" variant="corroborated">corroborated&nbsp;·&nbsp;412</Chip>
+          </EvidenceRow>
+
+          <EvidenceRow>
+            <div slot="primary">
+              <span class="number">(720) 555&#8209;0089</span>
+              <span class="meta">Auto Warranty Extension · Apr 18 09:38</span>
+            </div>
+            <Chip slot="state" variant="flag">flagged · 1</Chip>
+          </EvidenceRow>
+
+          <EvidenceRow>
+            <div slot="primary">
+              <span class="number">(503) 555&#8209;2131</span>
+              <span class="meta">Utility Shutoff Scam · Apr 18 09:31</span>
+            </div>
+            <Chip slot="state" variant="pending">pending · 2 of 3</Chip>
+          </EvidenceRow>
+
+          <EvidenceRow>
+            <div slot="primary">
+              <span class="number">(832) 555&#8209;9014</span>
+              <span class="meta">IRS Impersonation · Apr 18 09:27</span>
+            </div>
+            <Chip slot="state" variant="corroborated">corroborated · 87</Chip>
+          </EvidenceRow>
+
+          <EvidenceRow>
+            <div slot="primary">
+              <span class="number">(602) 555&#8209;4421</span>
+              <span class="meta">First flagged by you · 14 min ago</span>
+            </div>
+            <span slot="state" class="stamp">● first flag</span>
+          </EvidenceRow>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <!-- HOW IT WORKS -->
+  <section id="how" class="how-section">
+    <div class="container">
+      <p class="kicker mono">How it works</p>
+      <h2>First it blocks. <em>Then it shows you why.</em></h2>
+      <p class="dek narrative">
+        Ringdocket works in two layers. The first is automatic &mdash; your phone stops ringing. The second is optional &mdash; you help stop the next scam. Both are included.
+      </p>
+
+      <div class="how-grid">
+        <div class="how-panel">
+          <div class="panel-kicker mono">Layer 1 &middot; Automatic</div>
+          <h3>How your phone gets quieter</h3>
+          <ol class="how-steps">
+            <li>
+              <span class="step-num mono">01</span>
+              <div class="step-body">
+                <strong>Install and grant Call Directory permission.</strong>
+                <span>Thirty seconds. No account required at this step. The permission lets iOS consult our block list &mdash; the app never touches your calls directly.</span>
+              </div>
+            </li>
+            <li>
+              <span class="step-num mono">02</span>
+              <div class="step-body">
+                <strong>Your phone syncs 50,000+ known spammers overnight.</strong>
+                <span>Updated daily from the FTC registry plus corroborated user reports. Delivered via Cloudflare's edge network while you sleep, roughly 400 KB.</span>
+              </div>
+            </li>
+            <li>
+              <span class="step-num mono">03</span>
+              <div class="step-body">
+                <strong>Listed numbers never ring.</strong>
+                <span>iOS silences them before your phone rings. You'll see them as missed calls in Recents if you care to look. Most people never do.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="how-panel how-panel-civic">
+          <div class="panel-kicker mono">Layer 2 &middot; Civic (optional)</div>
+          <h3>How you help stop new scams</h3>
+          <ol class="how-steps">
+            <li>
+              <span class="step-num mono">01</span>
+              <div class="step-body">
+                <strong>Got a spam call? Tap Report.</strong>
+                <span>Paste the number from your Recents, pick a category (Auto Warranty, IRS, Medicare, Utility Shutoff), add an optional 280-character note.</span>
+              </div>
+            </li>
+            <li>
+              <span class="step-num mono">02</span>
+              <div class="step-body">
+                <strong>Your flag joins the pending queue.</strong>
+                <span>If two more users corroborate within fourteen days &mdash; different devices, different networks &mdash; the number promotes to the block list.</span>
+              </div>
+            </li>
+            <li>
+              <span class="step-num mono">03</span>
+              <div class="step-body">
+                <strong>Tomorrow morning, that number stops ringing &mdash; for everyone.</strong>
+                <span>If you were the first to flag it, you get first-flag credit on your profile and on the campaign's public page. Your civic work, itemized.</span>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <p class="pivot-line">
+        That's the product. Everything below is <em>why</em> we're different from every other blocker that promises the same thing.
+      </p>
+    </div>
+  </section>
+
+  <!-- WHY DIFFERENT -->
+  <section id="why">
+    <div class="container">
+      <p class="kicker mono">Why we're different</p>
+      <h2>Transparency, attribution, <em>and a paper trail.</em></h2>
+      <p class="dek narrative">
+        Every other blocker treats their database as a secret. We treat ours as a public record. When a number lands on the block list, you can see exactly how it got there, who flagged it first, and where it came from.
+      </p>
+
+      <div class="pillars">
+        <div class="pillar">
+          <div class="num mono">01 / transparency</div>
+          <h3>See the campaign behind the call</h3>
+          <p>Every blocked number links to a named campaign &mdash; Medicare Card Renewal Ring, Auto Warranty, IRS Impersonation &mdash; with its active timeline, carrier attribution, and report history.</p>
+        </div>
+        <div class="pillar">
+          <div class="num mono">02 / attribution</div>
+          <h3>Corroboration you can audit</h3>
+          <p>No number enters the public block list until three independent users flag it. When enforcement happens, we cite the FCC case number and link the public record. No black box.</p>
+        </div>
+        <div class="pillar">
+          <div class="num mono">03 / civic</div>
+          <h3>Your reports have receipts</h3>
+          <p>Flag a number. Earn the first-flag credit when others confirm. Read your quarterly Takedown Report showing the campaigns your reports helped retire. Civic work, itemized.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THREE-STATE DEMO -->
+  <section>
+    <div class="container">
+      <p class="kicker mono">The three-state ledger</p>
+      <h2>Pending. Corroborated. <em>Shut down.</em></h2>
+      <p class="dek narrative">
+        Every reported number has a state. Nothing gets blocked on one person's word, and nothing disappears from the record when a campaign goes dark.
+      </p>
+
+      <div class="state-demo">
+        <div class="demo-grid">
+          <div class="state-card">
+            <div class="state-chip-row">
+              <Chip variant="pending">pending · 1 of 3</Chip>
+            </div>
+            <div class="state-number mono">(503) 555&#8209;2131</div>
+            <div class="state-count mono">flagged 14 min ago · 1 report</div>
+            <p>A number enters the pending queue after the first flag. It stays in pending until 3 independent users &mdash; different devices, different networks &mdash; corroborate within 14 days. Visible only to reporters, not on the public block list.</p>
+          </div>
+
+          <div class="state-card">
+            <div class="state-chip-row">
+              <Chip variant="corroborated">corroborated · 412</Chip>
+            </div>
+            <div class="state-number mono">(402) 555&#8209;0142</div>
+            <div class="state-count mono">Medicare Card Renewal Ring · 412 reports</div>
+            <p>Once 3+ reports corroborate within 14 days, the number joins the block list and the public campaign record. The first flagger gets the credit. A source chip tracks provenance for every downstream decision.</p>
+          </div>
+
+          <div class="state-card">
+            <div class="state-chip-row">
+              <Chip variant="flag">retired · FCC 2026&#8209;0418</Chip>
+            </div>
+            <div class="state-number mono">(832) 555&#8209;9014</div>
+            <div class="state-count mono">IRS Impersonation · attributed takedown</div>
+            <p>When a campaign goes dark &mdash; whether via FCC enforcement, Industry Traceback Group action, or 30+ days of zero activity across our user base &mdash; we mark it retired and link the public enforcement record. Takedowns get cited, not claimed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAMPAIGN DETAIL PREVIEW -->
+  <section id="campaigns" class="campaign-section">
+    <div class="container">
+      <p class="kicker mono">Dashboard preview</p>
+      <h2>Every campaign has <em>a rap sheet.</em></h2>
+      <p class="dek narrative">
+        Tap any blocked number in the iOS app and jump to the web dashboard for the full history &mdash; prose summary, corroboration timeline, carrier path, and every flag on the record.
+      </p>
+
+      <div class="campaign-preview">
+        <div class="browser-bar">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <span class="url mono">ringdocket.app/campaigns/medicare-card-renewal-ring</span>
+        </div>
+
+        <div class="campaign-body">
+          <div class="campaign-rap">
+            <div class="case-id mono">CASE ID · ITG-2026-0418</div>
+            <h3>Medicare Card Renewal Ring</h3>
+            <p class="byline">Active since Jan 2026 &middot; 412 confirmed numbers &middot; 3 carriers implicated</p>
+
+            <div class="chip-row">
+              <Chip variant="corroborated">corroborated · 412</Chip>
+              <Chip variant="pending">under traceback</Chip>
+              <Chip variant="flag">first flag: you</Chip>
+            </div>
+
+            <p class="summary">
+              This campaign began with a handful of reports out of Nebraska in January, impersonating CMS to request Medicare card renewal numbers. It now spans 14 states and uses rotating spoofed caller IDs. Three numbers have been traced to gateway carrier infrastructure associated with Onvoy and Lingo STIR/SHAKEN attestations.
+            </p>
+
+            <div class="source-chip">
+              Data: FTC DNC feed + 412 user reports &middot; Last updated 12 min ago &middot; Corroboration threshold: 3 / 14d
+            </div>
+          </div>
+
+          <div class="campaign-ledger">
+            <div class="ledger-head">
+              <span class="ui-text">Evidence ledger</span>
+              <span class="count mono">412 rows</span>
+            </div>
+
+            <div class="ledger-row">
+              <span class="rnum">(402) 555&#8209;0142</span>
+              <span class="rtime">Apr 18 09:41</span>
+              <span class="rseal">● first flag</span>
+            </div>
+            <div class="ledger-row">
+              <span class="rnum">(720) 555&#8209;0089</span>
+              <span class="rtime">Apr 17 14:22</span>
+              <span><Chip variant="corroborated" size="sm">corr.</Chip></span>
+            </div>
+            <div class="ledger-row">
+              <span class="rnum">(503) 555&#8209;2131</span>
+              <span class="rtime">Apr 16 08:11</span>
+              <span><Chip variant="corroborated" size="sm">corr.</Chip></span>
+            </div>
+            <div class="ledger-row">
+              <span class="rnum">(832) 555&#8209;9014</span>
+              <span class="rtime">Apr 15 19:03</span>
+              <span><Chip variant="corroborated" size="sm">corr.</Chip></span>
+            </div>
+            <div class="ledger-row">
+              <span class="rnum">(602) 555&#8209;4421</span>
+              <span class="rtime">Apr 14 11:42</span>
+              <span><Chip variant="pending" size="sm">pending</Chip></span>
+            </div>
+            <div class="ledger-row">
+              <span class="rnum">(415) 555&#8209;7708</span>
+              <span class="rtime">Apr 13 16:17</span>
+              <span><Chip variant="corroborated" size="sm">corr.</Chip></span>
+            </div>
+            <div class="ledger-row">
+              <span class="rnum">(312) 555&#8209;3029</span>
+              <span class="rtime">Apr 12 07:53</span>
+              <span><Chip variant="corroborated" size="sm">corr.</Chip></span>
+            </div>
+            <div class="ledger-row more-row">
+              <span class="rnum">+ 405 more rows</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="container">
+      <p class="kicker mono">Pricing</p>
+      <h2>One price. <em>No upsells.</em></h2>
+      <p class="dek narrative">
+        Blocking is free forever. Pay only if you want the transparency dashboard, gamified reporting credit, and the quarterly Takedown Report. One tier. No ladder.
+      </p>
+
+      <div class="pricing">
+        <div class="plan">
+          <h4>Free</h4>
+          <div class="price">$0<span class="per">forever</span></div>
+          <div class="annual mono">no card required</div>
+          <ul>
+            <li>Unlimited call blocking</li>
+            <li>5 reports per month</li>
+            <li>Home-screen stats</li>
+            <li>iOS app + block list sync</li>
+          </ul>
+          <Button href="#download" variant="secondary" class="plan-cta">Download free</Button>
+        </div>
+
+        <div class="plan featured">
+          <h4>Ringdocket Full</h4>
+          <div class="price">$3.99<span class="per">/month</span></div>
+          <div class="annual mono">or $29.99/yr &mdash; save 37%</div>
+          <ul>
+            <li>Everything in Free</li>
+            <li>Unlimited reports + priority weighting</li>
+            <li>Full transparency dashboard</li>
+            <li>Weekly digest + monthly impact</li>
+            <li>Quarterly Takedown Report (shareable PDF)</li>
+            <li>All badges &amp; first-flag credit</li>
+          </ul>
+          <Button href="#download" variant="primary" class="plan-cta">Start with Full</Button>
+        </div>
+      </div>
+
+      <!-- FOUNDING FLAGGER -->
+      <div class="founding">
+        <div class="stamp mono">Founding Flagger &middot; limited to 500</div>
+        <h3>Lock your annual rate forever. <em>Once we hit 500, it's gone.</em></h3>
+        <p>
+          The first 500 annual subscribers get Ringdocket Full at <strong>$19.99/year</strong> &mdash; a third off list price, locked for the life of your account. You'll also carry the permanent Founding Flagger badge on your profile and in every Takedown Report you cite. Never reopens.
+        </p>
+        <div class="progress" aria-label="Founding Flagger progress">
+          <div class="bar"></div>
+        </div>
+        <div class="meter-label mono">
+          72 / 500 claimed &middot; 428 remaining
+        </div>
+        <Button href="#download" variant="primary">Claim Founding Flagger &mdash; $19.99/yr</Button>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2.5rem);
+  }
+
+  /* HERO */
+  .hero {
+    padding: clamp(4rem, 10vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 7fr 5fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.25rem;
+  }
+  .eyebrow::before {
+    content: '●';
+    color: var(--accent-signal);
+    margin-right: 0.5em;
+    font-size: 0.65em;
+    vertical-align: 0.2em;
+  }
+  .hero h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2.5rem, 6vw + 1rem, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    margin: 0 0 1.5rem;
+    color: var(--ink-primary);
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-family: 'Newsreader';
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .hero p.lead {
+    font-family: 'Newsreader';
+    font-size: 1.25rem;
+    line-height: 1.55;
+    color: var(--ink-primary);
+    margin: 0 0 2rem;
+    max-width: 52ch;
+  }
+  .cta-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .cta-note {
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    padding-left: 0.75rem;
+  }
+
+  /* LIVE LEDGER */
+  .live-ledger {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 0 rgba(216, 208, 190, 0.6);
+  }
+  .live-ledger .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  .live-ledger .head .title {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-primary);
+  }
+  .live-ledger .head .pulse {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .live-ledger .head .pulse::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--signal-corroborated);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal-corroborated) 50%, transparent);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal-corroborated) 50%, transparent);
+    }
+    70% {
+      box-shadow: 0 0 0 8px color-mix(in srgb, var(--signal-corroborated) 0%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--signal-corroborated) 0%, transparent);
+    }
+  }
+
+  /* SECTION RHYTHM */
+  section {
+    padding: clamp(3.5rem, 7vw, 6rem) 0;
+  }
+  .kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+  section h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.875rem, 4vw, 3rem);
+    line-height: 1.05;
+    margin: 0 0 1.25rem;
+    color: var(--ink-primary);
+  }
+  section h2 em {
+    font-style: italic;
+    font-family: 'Newsreader';
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .dek {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 66ch;
+    margin: 0 0 3rem;
+  }
+
+  /* HOW IT WORKS */
+  .how-section {
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--surface-inset) 30%, transparent), transparent);
+  }
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .how-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .how-panel {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+  .how-panel-civic {
+    border-color: color-mix(in srgb, var(--accent-signal) 28%, var(--rule));
+    position: relative;
+  }
+  .how-panel-civic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle at top right, rgba(194, 55, 10, 0.05), transparent 70%);
+    pointer-events: none;
+    border-top-right-radius: 10px;
+  }
+  .panel-kicker {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+  .how-panel-civic .panel-kicker {
+    color: var(--accent-signal);
+  }
+  .how-panel h3 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0 0 1.75rem;
+    color: var(--ink-primary);
+    letter-spacing: -0.01em;
+  }
+  .how-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .how-steps > li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+  .step-num {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    font-weight: 500;
+    padding-top: 0.25em;
+    letter-spacing: 0.05em;
+  }
+  .step-body strong {
+    font-family: 'Newsreader';
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--ink-primary);
+    font-size: 1rem;
+    line-height: 1.4;
+    font-style: italic;
+  }
+  .step-body span {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    display: block;
+  }
+  .pivot-line {
+    margin-top: 3rem;
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 56ch;
+    border-top: 1px solid var(--rule-subtle);
+    padding-top: 1.75rem;
+  }
+  .pivot-line em {
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink-primary);
+  }
+
+  /* PILLARS */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+  @media (max-width: 900px) {
+    .pillars {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+  .pillar {
+    border-top: 2px solid var(--ink-primary);
+    padding-top: 1.25rem;
+  }
+  .pillar .num {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin-bottom: 0.75rem;
+  }
+  .pillar h3 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    line-height: 1.15;
+    margin: 0 0 0.75rem;
+    color: var(--ink-primary);
+  }
+  .pillar p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0;
+  }
+
+  /* THREE-STATE DEMO */
+  .state-demo {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    margin-top: 1.5rem;
+  }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .demo-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .state-card {
+    padding: 1.25rem;
+    border-radius: 8px;
+    background: var(--surface-inset);
+    border: 1px solid var(--rule-subtle);
+  }
+  .state-chip-row {
+    margin-bottom: 1rem;
+  }
+  .state-number {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink-mono);
+    margin-bottom: 0.25rem;
+  }
+  .state-count {
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin-bottom: 0.75rem;
+  }
+  .state-card p {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    margin: 0;
+  }
+
+  /* CAMPAIGN PREVIEW */
+  .campaign-section {
+    background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--surface-inset) 40%, transparent), transparent);
+  }
+  .campaign-preview {
+    margin-top: 2rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .browser-bar {
+    background: var(--surface-inset);
+    padding: 0.625rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .browser-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .browser-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+  .browser-bar .url {
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin-left: auto;
+    padding-right: 1rem;
+  }
+  .campaign-body {
+    display: grid;
+    grid-template-columns: 60fr 40fr;
+    gap: 0;
+  }
+  @media (max-width: 900px) {
+    .campaign-body {
+      grid-template-columns: 1fr;
+    }
+  }
+  .campaign-rap {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-right: 1px solid var(--rule-subtle);
+  }
+  @media (max-width: 900px) {
+    .campaign-rap {
+      border-right: none;
+      border-bottom: 1px solid var(--rule-subtle);
+    }
+  }
+  .case-id {
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin-bottom: 0.75rem;
+  }
+  .campaign-rap h3 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    margin: 0 0 0.5rem;
+    line-height: 1.05;
+  }
+  .byline {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--ink-byline);
+    margin: 0 0 1.25rem;
+  }
+  .summary {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-primary);
+    margin: 0 0 1.25rem;
+  }
+  .chip-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .source-chip {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-inset);
+    border-radius: 4px;
+    border: 1px solid var(--rule-subtle);
+  }
+
+  /* EVIDENCE LEDGER (campaign preview) */
+  .campaign-ledger {
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    background: var(--surface-paper);
+    border-left: 1px solid color-mix(in srgb, var(--accent-signal) 15%, transparent);
+  }
+  @media (max-width: 900px) {
+    .campaign-ledger {
+      border-left: none;
+    }
+  }
+  .ledger-head {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .ledger-head .count {
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .ledger-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--rule-subtle);
+    align-items: center;
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+  }
+  .ledger-row:nth-child(4n + 0) {
+    background: color-mix(in srgb, var(--surface-inset) 50%, transparent);
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 4px;
+  }
+  .ledger-row:last-child {
+    border-bottom: none;
+  }
+  .rnum {
+    color: var(--ink-mono);
+  }
+  .rtime {
+    color: var(--ink-byline);
+    font-size: 0.6875rem;
+  }
+  .rseal {
+    color: var(--accent-signal);
+  }
+  .more-row {
+    justify-content: center;
+    color: var(--ink-byline);
+  }
+  .more-row .rnum {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  /* PRICING */
+  .pricing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 900px;
+    margin-top: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .pricing {
+      grid-template-columns: 1fr;
+    }
+  }
+  .plan {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+  }
+  .plan.featured {
+    border-color: var(--ink-primary);
+    position: relative;
+  }
+  .plan.featured::before {
+    content: 'Most common';
+    position: absolute;
+    top: -0.6rem;
+    left: 1.25rem;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .plan h4 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 0 0 0.5rem;
+    line-height: 1;
+  }
+  .plan .price {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 800;
+    font-size: 2.5rem;
+    line-height: 1;
+    margin: 0.5rem 0 0.25rem;
+    letter-spacing: -0.02em;
+  }
+  .plan .price .per {
+    font-family: 'Inter Tight';
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ink-byline);
+    margin-left: 0.25em;
+  }
+  .plan .annual {
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin-bottom: 1.5rem;
+  }
+  .plan ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+  }
+  .plan ul li {
+    padding: 0.4rem 0;
+    border-bottom: 1px dotted var(--rule-subtle);
+  }
+  .plan ul li:last-child {
+    border-bottom: none;
+  }
+  .plan ul li::before {
+    content: '—';
+    color: var(--ink-byline);
+    margin-right: 0.5em;
+    font-family: 'JetBrains Mono';
+  }
+  .plan .plan-cta {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  /* FOUNDING FLAGGER */
+  .founding {
+    margin-top: 2.5rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--accent-signal);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    position: relative;
+    overflow: hidden;
+  }
+  .founding::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle at top right, rgba(194, 55, 10, 0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .founding .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+  .founding .stamp::before {
+    content: '●';
+    font-size: 0.7em;
+  }
+  .founding h3 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin: 0 0 1rem;
+    line-height: 1.05;
+  }
+  .founding p {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 1.5rem;
+  }
+  .founding .progress {
+    background: var(--surface-inset);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 6px;
+    margin-bottom: 0.5rem;
+    max-width: 360px;
+  }
+  .founding .progress .bar {
+    height: 100%;
+    background: var(--accent-signal);
+    width: 14%;
+  }
+  .meter-label {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    margin-bottom: 1.5rem;
+  }
+</style>

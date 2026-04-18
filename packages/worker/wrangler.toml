@@ -1,0 +1,89 @@
+# ================================================================
+# Ringdocket Worker — API + cron jobs
+# ================================================================
+#
+# PORTFOLIO RULES (see /Users/jbm/new-project/CLAUDE.md "Cloudflare Deployment"):
+#
+# 1. SECRET-type env vars are NOT available at build time — only runtime.
+#    Reading `STRIPE_SECRET_KEY` during build will yield undefined. Design
+#    every secret access to run inside the request handler, never at module
+#    top level.
+# 2. Web app uses Cloudflare PAGES (not Workers). This Worker handles cron
+#    + API only. Never proxy the marketing site through this Worker.
+# 3. R2 bindings: REMOTE only. Never `--local` against production data.
+# 4. `pdf-parse` and `mammoth` are incompatible with the Workers runtime.
+#    For Takedown Report PDFs see PRD §22 (Puppeteer vs DocRaptor pending).
+# 5. `nanoid`'s default alphabet can produce double-underscore IDs that
+#    conflict with Cloudflare reserved paths. Use a custom alphabet or
+#    switch to `uuid`.
+#
+# Before any deploy: run the preflight audit at
+# /Users/jbm/new-project/skills/development/cloudflare-preflight.md
+# ================================================================
+
+name = "ringdocket-worker"
+main = "src/index.ts"
+compatibility_date = "2026-04-18"
+compatibility_flags = ["nodejs_compat"]
+
+# --------------------------------------------------------------------
+# Build-time (public) env vars — safe to commit.
+# These are NOT secrets; they ship in the client bundle too.
+# Update these once the Supabase project is provisioned.
+# --------------------------------------------------------------------
+[vars]
+SUPABASE_URL = "https://odezxbaalqglfdjxbsyy.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kZXp4YmFhbHFnbGZkanhic3l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTAyMTAsImV4cCI6MjA5MjEyNjIxMH0.QfjHZXPiCz6y42NQxf0-nqkVQP8WFs3rtBkK1X7Vb_Y"  # anon key is safe to commit — RLS enforces access
+
+# --------------------------------------------------------------------
+# Runtime Secrets — set via `wrangler secret put <NAME>`
+# NEVER add values to this file.
+#
+#   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+#   wrangler secret put STRIPE_SECRET_KEY
+#   wrangler secret put STRIPE_WEBHOOK_SECRET
+#   wrangler secret put REVENUECAT_WEBHOOK_SECRET
+#   wrangler secret put SENDGRID_API_KEY
+#
+# CI-only:
+#   wrangler secret put SENTRY_AUTH_TOKEN
+# --------------------------------------------------------------------
+
+# --------------------------------------------------------------------
+# R2 — block list distribution + Takedown Report PDFs
+# --------------------------------------------------------------------
+[[r2_buckets]]
+binding = "BLOCKLIST"
+bucket_name = "ringdocket-blocklist"
+
+[[r2_buckets]]
+binding = "REPORTS"
+bucket_name = "ringdocket-reports"
+
+# --------------------------------------------------------------------
+# KV — rate limiting + free-tier monthly report counter
+# Create via: wrangler kv:namespace create RATE_LIMIT
+# Then paste the returned id below.
+# --------------------------------------------------------------------
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "342da3b7079644e4a14ae1b218512077"
+
+# --------------------------------------------------------------------
+# Cron triggers — daily ingestion + block list generation.
+# Uncomment once the ingestion jobs land (Phase 3).
+# --------------------------------------------------------------------
+# [triggers]
+# crons = [
+#   "0 6 * * *",   # 06:00 UTC — FTC DNC feed ingestion
+#   "30 6 * * *",  # 06:30 UTC — FCC enforcement press releases
+#   "0 7 * * *",   # 07:00 UTC — ITG public traceback scrape
+#   "0 8 * * *",   # 08:00 UTC — corroboration promotion + block list snapshot
+#   "0 * * * *"    # hourly — block list deltas
+# ]
+
+# --------------------------------------------------------------------
+# Observability
+# --------------------------------------------------------------------
+[observability]
+enabled = true

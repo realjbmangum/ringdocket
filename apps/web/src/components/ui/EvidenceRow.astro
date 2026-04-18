@@ -1,0 +1,56 @@
+---
+// EvidenceRow — the ledger primitive.
+// Renders a single row of an evidence ledger (live network feed, campaign
+// detail ledger, my-reports timeline). Three slots: primary content (phone +
+// metadata), state indicator (chip or first-flag seal), optional trailing.
+// See docs/DESIGN-SYSTEM.md §7 "Evidence row."
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class:list={['evidence-row', className]}>
+  <div class="primary">
+    <slot name="primary" />
+  </div>
+  <div class="state">
+    <slot name="state" />
+  </div>
+</div>
+
+<style>
+  .evidence-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dotted var(--rule-subtle);
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    align-items: center;
+  }
+  .evidence-row:last-child {
+    border-bottom: none;
+  }
+  .primary :global(.number) {
+    color: var(--ink-mono);
+    font-weight: 500;
+    display: block;
+  }
+  .primary :global(.meta) {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    display: block;
+    margin-top: 0.15em;
+    font-weight: 400;
+  }
+  .state :global(.stamp) {
+    color: var(--accent-signal);
+    font-size: 0.65rem;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+  }
+</style>

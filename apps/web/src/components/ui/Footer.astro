@@ -1,0 +1,133 @@
+---
+// Footer — surface-inset background, four-column grid, source attribution row.
+// "Includes data from the FTC National Do Not Call Registry" is required per
+// PRD §8 FTC reuse terms until attribution requirement is confirmed otherwise.
+---
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="col">
+        <a href="/" class="wordmark">Ringdocket</a>
+        <p class="tagline">A public ledger for the spam economy. Built for people who want their phone to stop ringing and want to know why it was.</p>
+      </div>
+      <div class="col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#download">iOS app</a></li>
+          <li><a href="/app">Dashboard</a></li>
+          <li><a href="#campaigns">Campaigns</a></li>
+          <li><a href="/status">Status</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <h5>Record</h5>
+        <ul>
+          <li><a href="/methodology">Methodology</a></li>
+          <li><a href="/data-sources">Data sources</a></li>
+          <li><a href="/report-an-error">Report an error</a></li>
+          <li><a href="/press">Press</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="/privacy">Privacy</a></li>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/can-spam">CAN-SPAM</a></li>
+          <li><a href="/security">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="source mono">
+      <span>Includes data from the FTC National Do Not Call Registry &middot; Public record since 2026</span>
+      <span><span class="accent-dot">●</span> Ringdocket / LIGHTHOUSE 27 LLC</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding: 2.5rem 0 3rem;
+    border-top: 1px solid var(--rule);
+    background: var(--surface-inset);
+  }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2.5rem);
+  }
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+  @media (max-width: 700px) {
+    .foot-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .wordmark {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    color: var(--ink-primary);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 0.25rem;
+  }
+  .wordmark::after {
+    content: '.';
+    color: var(--accent-signal);
+    margin-left: 0.05em;
+  }
+  .col h5 {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--ink-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  .col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Inter Tight';
+    font-size: 0.875rem;
+    line-height: 2;
+  }
+  .col ul a {
+    color: var(--ink-secondary);
+    text-decoration: none;
+  }
+  .col ul a:hover {
+    color: var(--ink-primary);
+  }
+  .tagline {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    margin: 0.75rem 0 1rem;
+    max-width: 34ch;
+  }
+  .source {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-subtle);
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: space-between;
+  }
+  .accent-dot {
+    color: var(--accent-signal);
+  }
+</style>

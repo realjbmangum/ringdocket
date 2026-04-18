@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================ */
+/* Design Tokens — Forensic Ledger (Light)                          */
+/* Source of truth: docs/DESIGN-SYSTEM.md §2                        */
+/* Dark palette intentionally omitted until V2 opt-in toggle.       */
+/* ================================================================ */
+
+:root {
+  /* Surface & ink */
+  --surface-paper: #F7F3EA;
+  --surface-raised: #FFFFFF;
+  --surface-inset: #EEE8DA;
+  --rule: #D8D0BE;
+  --rule-subtle: #E6DFCD;
+
+  --ink-primary: #1B1F27;
+  --ink-secondary: #5C5D5F;
+  --ink-byline: #8D8875;
+  --ink-mono: #3A3D44;
+
+  /* State signals — the three-state ledger */
+  --signal-flag: #D97742;
+  --signal-corroborated: #2F6B4A;
+  --muted-pending: #A89E85;
+
+  /* Accent — the ONE color, used as a stamp */
+  --accent-signal: #C2370A;
+
+  /* Utility */
+  --destructive: #8B2B1F;
+  --focus-ring: rgba(194, 55, 10, 0.4);
+  --selection-bg: rgba(194, 55, 10, 0.12);
+}
+
+/* ================================================================ */
+/* @font-face — self-hosted variable fonts                          */
+/* See apps/web/public/fonts/README.md for download instructions.   */
+/* ================================================================ */
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/bricolage-grotesque-variable.ttf') format('truetype-variations');
+  font-weight: 400 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Newsreader';
+  src: url('/fonts/newsreader-variable.ttf') format('truetype-variations');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Newsreader';
+  src: url('/fonts/newsreader-italic-variable.ttf') format('truetype-variations');
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter Tight';
+  src: url('/fonts/inter-tight-variable.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-variable.ttf') format('truetype-variations');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
+/* ================================================================ */
+/* Base                                                              */
+/* ================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: var(--surface-paper);
+  color: var(--ink-primary);
+  font-family: 'Newsreader', ui-serif, Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  /* Atmospheric layer 1 — ledger rules (1px every 32px, ~6% effective opacity) */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    color-mix(in srgb, var(--rule) 45%, transparent) 31px,
+    color-mix(in srgb, var(--rule) 45%, transparent) 32px
+  );
+}
+
+h1, h2, h3, .wordmark { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--ink-primary);
+}
+
+/* ================================================================ */
+/* Atmospheric layer helpers                                         */
+/* Base surface is NEVER a flat solid — every page composites the    */
+/* ruled paper baked into <body>. Hero sections add the accent       */
+/* radial via the .hero class below. Fiber noise (layer 2) is        */
+/* available as a utility class for cards needing extra texture.     */
+/* ================================================================ */
+
+.hero {
+  background-image: radial-gradient(
+    ellipse at top left,
+    rgba(194, 55, 10, 0.04),
+    transparent 50%
+  );
+}
+
+.atmosphere-fiber {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ================================================================ */
+/* Type family utilities                                             */
+/* ================================================================ */
+
+.display { font-family: 'Bricolage Grotesque', ui-sans-serif, system-ui; font-weight: 700; letter-spacing: -0.01em; line-height: 1.05; }
+.narrative { font-family: 'Newsreader', ui-serif, Georgia, serif; }
+.ui-text { font-family: 'Inter Tight', ui-sans-serif, system-ui; }
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+/* ================================================================ */
+/* Focus + reduced motion                                            */
+/* ================================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

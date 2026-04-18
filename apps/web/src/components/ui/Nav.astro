@@ -1,0 +1,96 @@
+---
+// Sticky top nav. Wordmark on left with accent-signal period (one of the four
+// permitted accent uses — see docs/DESIGN-SYSTEM.md §2). Three links max.
+---
+
+<nav class="site">
+  <div class="container inner">
+    <a href="/" class="wordmark">Ringdocket</a>
+    <div class="nav-links">
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="#campaigns" class="nav-link">Campaigns</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#download" class="button button-primary">Download for iOS</a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  nav.site {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    background: color-mix(in srgb, var(--surface-paper) 82%, transparent);
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  nav.site .inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 0;
+  }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2.5rem);
+  }
+  .wordmark {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    color: var(--ink-primary);
+    text-decoration: none;
+  }
+  .wordmark::after {
+    content: '.';
+    color: var(--accent-signal);
+    margin-left: 0.05em;
+  }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  .nav-link {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--ink-secondary);
+    text-decoration: none;
+    transition: color 140ms ease-out;
+  }
+  .nav-link:hover {
+    color: var(--ink-primary);
+  }
+  @media (max-width: 640px) {
+    .nav-links {
+      display: none;
+    }
+  }
+
+  /* Local button styles scoped to nav — global Button component exists for page content */
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.625rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 140ms ease-out;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .button-primary {
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+  }
+  .button-primary:hover {
+    background: #2a2f3a;
+  }
+</style>

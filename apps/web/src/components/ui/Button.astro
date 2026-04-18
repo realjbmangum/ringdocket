@@ -1,0 +1,72 @@
+---
+// Button — primary | secondary | destructive.
+// NO accent-signal buttons. CTAs use ink-primary. The accent is a stamp, not
+// a call-to-action color. See docs/DESIGN-SYSTEM.md §7.
+
+interface Props {
+  variant?: 'primary' | 'secondary' | 'destructive';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  href,
+  type = 'button',
+  class: className = '',
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class:list={['button', `button-${variant}`, className]}
+  href={href}
+  type={!href ? type : undefined}
+>
+  <slot />
+</Tag>
+
+<style>
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 140ms ease-out, border-color 140ms ease-out;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+  .button-primary {
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+  }
+  .button-primary:hover {
+    background: #2a2f3a;
+  }
+  .button-secondary {
+    background: transparent;
+    color: var(--ink-primary);
+    border-color: var(--rule);
+  }
+  .button-secondary:hover {
+    background: var(--surface-inset);
+  }
+  .button-destructive {
+    background: var(--destructive);
+    color: var(--surface-paper);
+  }
+  .button-destructive:hover {
+    background: #7a2418;
+  }
+  .button:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+</style>
