@@ -34,6 +34,10 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 SUPABASE_URL = "https://odezxbaalqglfdjxbsyy.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kZXp4YmFhbHFnbGZkanhic3l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NTAyMTAsImV4cCI6MjA5MjEyNjIxMH0.QfjHZXPiCz6y42NQxf0-nqkVQP8WFs3rtBkK1X7Vb_Y"  # anon key is safe to commit — RLS enforces access
+# Public-facing URL of the BLOCKLIST R2 bucket. Update once the custom
+# domain is wired in the Cloudflare dashboard (R2 -> bucket -> Settings ->
+# Public Access -> Custom Domain). Until then, swap to the *.r2.dev URL.
+BLOCKLIST_PUBLIC_URL = "https://blocklist.ringdocket.com"
 
 # --------------------------------------------------------------------
 # Runtime Secrets — set via `wrangler secret put <NAME>`
@@ -71,16 +75,17 @@ id = "342da3b7079644e4a14ae1b218512077"
 
 # --------------------------------------------------------------------
 # Cron triggers — daily ingestion + block list generation.
-# Uncomment once the ingestion jobs land (Phase 3).
+# Only enable schedules whose handlers exist. Uncomment new entries as
+# their handlers land in Phase 3.
 # --------------------------------------------------------------------
-# [triggers]
-# crons = [
-#   "0 6 * * *",   # 06:00 UTC — FTC DNC feed ingestion
-#   "30 6 * * *",  # 06:30 UTC — FCC enforcement press releases
-#   "0 7 * * *",   # 07:00 UTC — ITG public traceback scrape
-#   "0 8 * * *",   # 08:00 UTC — corroboration promotion + block list snapshot
-#   "0 * * * *"    # hourly — block list deltas
-# ]
+[triggers]
+crons = [
+  "0 8 * * *",   # 08:00 UTC — corroboration promotion + block list snapshot
+  # "0 6 * * *",   # 06:00 UTC — FTC DNC feed ingestion
+  # "30 6 * * *",  # 06:30 UTC — FCC enforcement press releases
+  # "0 7 * * *",   # 07:00 UTC — ITG public traceback scrape
+  # "0 * * * *"    # hourly — block list deltas
+]
 
 # --------------------------------------------------------------------
 # Observability
