@@ -1,77 +1,294 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
+import NarrativeHero from '../../components/islands/NarrativeHero.tsx';
+import NetworkLedger from '../../components/islands/NetworkLedger.tsx';
 ---
 
 <AppLayout title="Home — Ringdocket">
-  <div class="home-stub">
-    <p class="stub-kicker">Home</p>
-    <h1 class="stub-h1">
-      You're in. <em>Dashboard coming in chunk 2.</em>
-    </h1>
-    <p class="stub-lead">
-      Next we'll render the narrative-led hero and live Network Ledger here.
-      For now this is just proof that auth works — you're signed in and the
-      guard let you through.
-    </p>
-    <div class="stub-links">
-      <a href="/app/campaigns" class="stub-link">Campaigns →</a>
-      <a href="/app/my-impact" class="stub-link">My Impact →</a>
-      <a href="/app/settings" class="stub-link">Settings →</a>
+  <div class="home-grid">
+    <div class="home-col-lead">
+      <NarrativeHero client:load />
+    </div>
+    <div class="home-col-side">
+      <NetworkLedger client:load />
     </div>
   </div>
 </AppLayout>
 
-<style>
-  .home-stub {
-    padding-top: 1.5rem;
+<style is:global>
+  .home-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(280px, 4fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+    padding-top: 1rem;
   }
-  .stub-kicker {
+  @media (max-width: 960px) {
+    .home-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* NARRATIVE HERO */
+  .narrative-hero {
+    padding-top: 0.5rem;
+  }
+  .hero-kicker {
     font-family: 'JetBrains Mono';
     font-size: 0.75rem;
     color: var(--accent-signal);
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin: 0 0 0.75rem;
+    margin: 0 0 1rem;
   }
-  .stub-h1 {
+  .hero-h1 {
     font-family: 'Bricolage Grotesque';
     font-weight: 700;
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-    margin: 0 0 1rem;
+    font-size: clamp(1.875rem, 3.6vw, 2.75rem);
+    line-height: 1.06;
+    letter-spacing: -0.015em;
+    margin: 0 0 1.25rem;
     color: var(--ink-primary);
   }
-  .stub-h1 em {
+  .hero-h1 em {
     font-family: 'Newsreader';
     font-style: italic;
     font-weight: 500;
     color: var(--ink-secondary);
   }
-  .stub-lead {
+  .hero-num {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 800;
+  }
+  .hero-lead {
     font-family: 'Newsreader';
     font-size: 1.0625rem;
     line-height: 1.6;
     color: var(--ink-secondary);
-    max-width: 56ch;
+    max-width: 58ch;
     margin: 0 0 2rem;
   }
-  .stub-links {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--rule-subtle);
+  .hero-lead strong {
+    font-weight: 600;
+    color: var(--ink-primary);
   }
-  .stub-link {
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.25rem;
+    margin: 0;
+    max-width: 560px;
+  }
+  .hero-stat {
+    padding: 0 1rem 0 0;
+    border-right: 1px solid var(--rule-subtle);
+  }
+  .hero-stat:last-child {
+    border-right: none;
+    padding-left: 1rem;
+  }
+  .hero-stat:not(:last-child):not(:first-child) {
+    padding-left: 1rem;
+  }
+  .hero-stat dt {
     font-family: 'Inter Tight';
     font-weight: 500;
-    font-size: 0.9375rem;
-    color: var(--ink-secondary);
-    text-decoration: none;
-    transition: color 140ms ease-out;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-byline);
+    margin: 0 0 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
   }
-  .stub-link:hover {
+  .hero-stat dd {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1;
     color: var(--ink-primary);
+    margin: 0;
+  }
+  .credit-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-signal);
+  }
+
+  /* NETWORK LEDGER */
+  .network-ledger {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.125rem 1.125rem 0.875rem;
+    position: sticky;
+    top: 5rem;
+  }
+  @media (max-width: 960px) {
+    .network-ledger {
+      position: static;
+    }
+  }
+  .ledger-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule-subtle);
+    margin-bottom: 0.75rem;
+  }
+  .ledger-title {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .ledger-pulse {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+  }
+  .ledger-pulse::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--signal-corroborated, #3f7c5a);
+    animation: rd-pulse 2.2s infinite;
+  }
+  @keyframes rd-pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  .ledger-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .ledger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  .ledger-row:last-child {
+    border-bottom: none;
+  }
+  .ledger-row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1875rem;
+    min-width: 0;
+  }
+  .ledger-phone {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--ink-mono);
+  }
+  .ledger-meta {
+    font-family: 'Newsreader';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ledger-badge {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--surface-inset);
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .ledger-badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--signal-corroborated, #3f7c5a);
+  }
+  .ledger-foot {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    margin: 0.875rem 0 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--rule-subtle);
+    line-height: 1.4;
+  }
+  .ledger-empty {
+    font-family: 'Newsreader';
+    font-size: 0.875rem;
+    color: var(--ink-byline);
+    font-style: italic;
+    margin: 0 0 0.5rem;
+  }
+  .ledger-error {
+    font-family: 'Newsreader';
+    font-size: 0.875rem;
+    color: #b1271b;
+    margin: 0;
+  }
+  .ledger-skel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.25rem 0 0.5rem;
+  }
+  .ledger-skel-row {
+    height: 34px;
+    background: linear-gradient(
+      90deg,
+      var(--surface-inset) 0%,
+      color-mix(in srgb, var(--surface-inset) 60%, var(--surface-raised)) 50%,
+      var(--surface-inset) 100%
+    );
+    border-radius: 3px;
+    animation: rd-skel 1.4s ease-in-out infinite;
+  }
+  @keyframes rd-skel {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* HERO SKELETON */
+  .hero-skeleton > div {
+    background: linear-gradient(
+      90deg,
+      var(--surface-inset) 0%,
+      color-mix(in srgb, var(--surface-inset) 60%, var(--surface-raised)) 50%,
+      var(--surface-inset) 100%
+    );
+    border-radius: 3px;
+    animation: rd-skel 1.4s ease-in-out infinite;
+  }
+  .hero-skel-kicker { width: 90px; height: 14px; margin-bottom: 1rem; }
+  .hero-skel-title { width: 80%; height: 40px; margin-bottom: 0.5rem; }
+  .hero-skel-title.short { width: 55%; margin-bottom: 1.25rem; }
+  .hero-skel-lead { width: 95%; height: 18px; margin-bottom: 0.5rem; }
+  .hero-error {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    color: #b1271b;
   }
 </style>
