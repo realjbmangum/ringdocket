@@ -42,11 +42,11 @@ function makeSupabaseStub(opts: {
         order(col: string, o: { ascending: boolean }) {
           this._column = col;
           this._ascending = o.ascending;
-          return this._resolve();
+          return this;
         },
-        _resolve() {
+        range(from: number, to: number) {
           if (opts.error) return Promise.resolve({ data: null, error: opts.error });
-          const rows = (opts.rows ?? [])
+          const all = (opts.rows ?? [])
             .filter((r) => r.current_state === this._state)
             .map((r) => ({ phone: r.phone }))
             .sort((a, b) =>
@@ -54,7 +54,7 @@ function makeSupabaseStub(opts: {
                 ? a.phone.localeCompare(b.phone)
                 : b.phone.localeCompare(a.phone),
             );
-          return Promise.resolve({ data: rows, error: null });
+          return Promise.resolve({ data: all.slice(from, to + 1), error: null });
         },
       };
       return builder;

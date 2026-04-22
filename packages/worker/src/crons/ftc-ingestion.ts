@@ -78,6 +78,7 @@ interface FtcComplaintInsertRow {
   consumer_area_code: string | null;
   is_robocall: boolean | null;
   filed_at: string | null;
+  complaint_filed_at: string | null;
   source_url: string | null;
 }
 
@@ -102,14 +103,18 @@ function toInsertRow(record: {
   const is_robocall =
     robocallRaw === 'Y' ? true : robocallRaw === 'N' ? false : null;
 
-  // Violation-date format: "YYYY-MM-DD HH:MM:SS" (local). Convert to ISO
-  // UTC by appending "Z" after replacing the space. FTC doesn't expose
-  // timezone — we assume UTC for indexing consistency. Close enough for
-  // corroboration windowing; the precise tz is not load-bearing.
-  const filedRaw = record.attributes['violation-date'] ?? record.attributes['created-date'];
-  const filed_at = filedRaw
-    ? new Date(filedRaw.replace(' ', 'T') + 'Z').toISOString()
-    : null;
+  // Both date fields format: "YYYY-MM-DD HH:MM:SS" (no tz exposed by FTC —
+  // we treat as UTC for indexing consistency; precise tz is not load-bearing).
+  // `violation-date` is user-entered and often years stale; kept in filed_at
+  // for historical auditability. `created-date` is the reliable recency
+  // signal — the hydration RPC filters on complaint_filed_at.
+  const parseFtcDate = (raw: string | undefined): string | null =>
+    raw ? new Date(raw.replace(' ', 'T') + 'Z').toISOString() : null;
+
+  const filed_at =
+    parseFtcDate(record.attributes['violation-date']) ??
+    parseFtcDate(record.attributes['created-date']);
+  const complaint_filed_at = parseFtcDate(record.attributes['created-date']);
 
   return {
     ftc_id: record.id,
@@ -120,6 +125,7 @@ function toInsertRow(record: {
     consumer_area_code: record.attributes['consumer-area-code'] ?? null,
     is_robocall,
     filed_at,
+    complaint_filed_at,
     source_url: `https://api.ftc.gov/v0/dnc-complaints/${record.id}`,
   };
 }

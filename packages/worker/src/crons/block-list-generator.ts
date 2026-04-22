@@ -46,10 +46,15 @@ export interface BlockListSupabaseClient {
         order(
           column: string,
           opts: { ascending: boolean },
-        ): Promise<{
-          data: Array<{ phone: string }> | null;
-          error: { message: string } | null;
-        }>;
+        ): {
+          range(
+            from: number,
+            to: number,
+          ): Promise<{
+            data: Array<{ phone: string }> | null;
+            error: { message: string } | null;
+          }>;
+        };
       };
     };
   };
@@ -106,18 +111,28 @@ export async function generateBlockList(
     (getServiceRoleSupabase(env) as unknown as BlockListSupabaseClient);
 
   // Fetch corroborated phone numbers, sorted ascending. Select only the
-  // `phone` column — the block list ships nothing else.
-  const { data, error } = await supabase
-    .from('numbers')
-    .select('phone')
-    .eq('current_state', 'corroborated')
-    .order('phone', { ascending: true });
-
-  if (error) {
-    throw new Error(`Supabase query failed: ${error.message}`);
+  // `phone` column — the block list ships nothing else. PostgREST caps
+  // each response at 1000 rows by default; paginate via .range() until a
+  // short page signals we've read everything.
+  const PAGE_SIZE = 1000;
+  const MAX_PAGES = 100; // 100k number hard cap — well above V1 expectations
+  const numbers: string[] = [];
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await supabase
+      .from('numbers')
+      .select('phone')
+      .eq('current_state', 'corroborated')
+      .order('phone', { ascending: true })
+      .range(from, to);
+    if (error) {
+      throw new Error(`Supabase query failed: ${error.message}`);
+    }
+    const rows = data ?? [];
+    for (const row of rows) numbers.push(row.phone);
+    if (rows.length < PAGE_SIZE) break;
   }
-
-  const numbers = (data ?? []).map((r) => r.phone);
   const version = opts.version ?? formatVersion(opts.generatedAt);
   const generatedAt = (opts.generatedAt ?? new Date()).toISOString();
 
