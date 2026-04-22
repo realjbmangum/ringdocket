@@ -1,0 +1,238 @@
+---
+import AppLayout from '../../../layouts/AppLayout.astro';
+import CampaignDetail from '../../../components/islands/CampaignDetail.tsx';
+
+export function getStaticPaths() {
+  // Hardcoded slugs matching migration 008 seed. Keep in sync when adding
+  // campaigns. Astro hoists getStaticPaths in isolation, so this list must
+  // live inside the function rather than at module scope. Build-time
+  // Supabase query would need the service role key, which isn't available
+  // at build time on Cloudflare Pages.
+  const slugs = [
+    'medicare-card-renewal-ring',
+    'auto-warranty-extension',
+    'irs-impersonation',
+    'social-security-suspension',
+    'utility-shutoff-scam',
+    'tech-support-scam',
+    'extended-warranty',
+    'solar-energy-savings',
+    'debt-relief-credit-repair',
+    'home-improvement-canvassing',
+    'bank-account-fraud',
+    'political-robocall',
+  ];
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+---
+
+<AppLayout title={`${slug} — Ringdocket`}>
+  <div class="campaign-detail-page">
+    <CampaignDetail client:load slug={slug!} />
+  </div>
+</AppLayout>
+
+<style is:global>
+  .campaign-detail-page {
+    max-width: 900px;
+  }
+  .campaign-article-head {
+    margin-bottom: 2.5rem;
+  }
+  .campaign-case-id {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 0.75rem;
+  }
+  .campaign-article-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.2vw, 2.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--ink-primary);
+    margin: 0 0 0.5rem;
+  }
+  .campaign-byline {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-byline);
+    margin: 0 0 1.25rem;
+  }
+  .campaign-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .campaign-chip {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+  }
+  .campaign-chip.corroborated {
+    background: color-mix(in srgb, var(--signal-corroborated, #3f7c5a) 14%, var(--surface-raised));
+    color: var(--signal-corroborated, #3f7c5a);
+    border: 1px solid color-mix(in srgb, var(--signal-corroborated, #3f7c5a) 25%, transparent);
+  }
+  .campaign-chip.pending {
+    background: var(--surface-inset);
+    color: var(--ink-secondary);
+    border: 1px solid var(--rule);
+  }
+  .campaign-chip.retired {
+    background: color-mix(in srgb, var(--accent-signal) 10%, var(--surface-raised));
+    color: var(--accent-signal);
+    border: 1px solid color-mix(in srgb, var(--accent-signal) 22%, transparent);
+  }
+  .campaign-narrative {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--ink-primary);
+    margin: 0 0 1.5rem;
+    max-width: 70ch;
+  }
+  .campaign-source-chip {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    padding: 0.625rem 0.875rem;
+    background: var(--surface-inset);
+    border: 1px solid var(--rule-subtle);
+    border-radius: 4px;
+    line-height: 1.55;
+  }
+
+  .campaign-ledger-section {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.25rem 1.375rem;
+    margin-bottom: 1.5rem;
+  }
+  .campaign-ledger-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .campaign-ledger-title {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .campaign-ledger-count {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+  }
+  .campaign-ledger {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .campaign-ledger-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) auto auto;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rule-subtle);
+    align-items: baseline;
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+  }
+  .campaign-ledger-row:last-child {
+    border-bottom: none;
+  }
+  .campaign-ledger-phone {
+    color: var(--ink-mono);
+  }
+  .campaign-ledger-meta {
+    color: var(--ink-byline);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .campaign-ledger-score {
+    color: var(--ink-secondary);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .score-label {
+    color: var(--ink-byline);
+    font-size: 0.6875rem;
+    margin-left: 0.25em;
+  }
+  .campaign-ledger-empty {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--ink-byline);
+    margin: 0;
+    padding: 1.25rem 0;
+  }
+
+  .campaign-article-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .campaign-back, .campaign-delist {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--ink-secondary);
+    text-decoration: none;
+    transition: color 140ms ease-out;
+  }
+  .campaign-back:hover, .campaign-delist:hover {
+    color: var(--ink-primary);
+  }
+
+  .campaign-skel > div {
+    background: linear-gradient(
+      90deg,
+      var(--surface-inset) 0%,
+      color-mix(in srgb, var(--surface-inset) 60%, var(--surface-raised)) 50%,
+      var(--surface-inset) 100%
+    );
+    border-radius: 3px;
+    animation: rd-skel 1.4s ease-in-out infinite;
+  }
+  .campaign-skel-title { width: 70%; height: 48px; margin-bottom: 0.75rem; }
+  .campaign-skel-byline { width: 45%; height: 18px; margin-bottom: 1.5rem; }
+  .campaign-skel-summary { width: 95%; height: 18px; margin-bottom: 0.5rem; }
+  .campaign-skel-summary.short { width: 70%; }
+
+  .campaign-notfound {
+    padding: 3rem 0;
+  }
+  .campaign-notfound h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0 0 1rem;
+    color: var(--ink-primary);
+  }
+  .campaign-error {
+    color: #b1271b;
+    font-family: 'Newsreader';
+  }
+</style>

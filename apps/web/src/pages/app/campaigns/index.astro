@@ -1,0 +1,216 @@
+---
+import AppLayout from '../../../layouts/AppLayout.astro';
+import CampaignsList from '../../../components/islands/CampaignsList.tsx';
+---
+
+<AppLayout title="Campaigns — Ringdocket">
+  <div class="campaigns-page">
+    <header class="campaigns-head">
+      <p class="campaigns-kicker">Campaigns</p>
+      <h1 class="campaigns-h1">
+        Every call has <em>a campaign behind it.</em>
+      </h1>
+      <p class="campaigns-lead">
+        Scam rings leave patterns — same scripts, same targets, same carrier
+        infrastructure. These are the ones we're tracking, with their
+        corroborated numbers on the public record.
+      </p>
+    </header>
+    <CampaignsList client:load />
+  </div>
+</AppLayout>
+
+<style is:global>
+  .campaigns-page {
+    max-width: 900px;
+  }
+  .campaigns-head {
+    margin-bottom: 2.25rem;
+  }
+  .campaigns-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  .campaigns-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.875rem, 3.8vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.875rem;
+    color: var(--ink-primary);
+  }
+  .campaigns-h1 em {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .campaigns-lead {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .campaigns-list {
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .campaign-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    transition: border-color 140ms ease-out, transform 140ms ease-out;
+  }
+  .campaign-card:hover {
+    border-color: var(--ink-secondary);
+  }
+  .campaign-link {
+    display: block;
+    padding: 1.25rem 1.375rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .campaign-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .campaign-name {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink-primary);
+  }
+  .campaign-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono';
+  }
+  .campaign-count-num {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--ink-primary);
+  }
+  .campaign-count-label {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .campaign-summary {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    margin: 0 0 0.875rem;
+    max-width: 72ch;
+  }
+  .campaign-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .campaign-go {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--ink-secondary);
+  }
+  .campaign-card:hover .campaign-go {
+    color: var(--accent-signal);
+  }
+
+  .campaigns-empty-section {
+    padding: 1.5rem;
+    background: var(--surface-raised);
+    border: 1px dashed var(--rule);
+    border-radius: 8px;
+  }
+  .campaigns-empty-head {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-byline);
+    margin: 0 0 0.5rem;
+  }
+  .campaigns-empty-sub {
+    font-family: 'Newsreader';
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 1rem;
+  }
+  .campaigns-empty-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.875rem;
+  }
+  .campaigns-empty-item a {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--ink-secondary);
+    text-decoration: none;
+    padding: 0.3rem 0.5rem;
+    background: var(--surface-inset);
+    border-radius: 3px;
+    transition: color 140ms ease-out;
+  }
+  .campaigns-empty-item a:hover {
+    color: var(--ink-primary);
+  }
+
+  .campaigns-skel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .campaigns-skel-row {
+    height: 110px;
+    background: linear-gradient(
+      90deg,
+      var(--surface-inset) 0%,
+      color-mix(in srgb, var(--surface-inset) 60%, var(--surface-raised)) 50%,
+      var(--surface-inset) 100%
+    );
+    border-radius: 8px;
+    animation: rd-skel 1.4s ease-in-out infinite;
+  }
+  @keyframes rd-skel {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  .campaigns-error {
+    color: #b1271b;
+    font-family: 'Newsreader';
+  }
+</style>
