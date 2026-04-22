@@ -1,25 +1,33 @@
 /**
  * Ringdocket API Worker
  *
- * Routes handled here:
- *   GET  /api/health   — liveness probe
- *   POST /api/report   — user-submitted scam report (PRD §7.3)
+ * Public routes:
+ *   GET  /api/health             — liveness probe
+ *   POST /api/report             — user-submitted scam report (PRD §7.3)
+ *
+ * Internal (admin-token-gated) routes:
+ *   POST /_admin/trigger-ftc-ingestion
+ *   POST /_admin/trigger-block-list
+ *
+ * Cron triggers (see wrangler.toml [triggers]):
+ *   0 6 * * *   — FTC ingestion + block list hydration
+ *   0 8 * * *   — Block list snapshot → R2
  *
  * Cloudflare rules this file must respect (per CLAUDE.md):
  *   - Read secrets from `env` INSIDE the handler, never at module top-level.
- *     Secret-type bindings are not defined at build time.
  *   - event.waitUntil() for non-blocking logging, not top-level await.
- *   - No `pdf-parse` / `mammoth` imports here — both are incompatible with
- *     the Workers runtime.
- *
- * Cron handler stub remains for Phase 3 (corroboration promotion + block
- * list snapshots).
+ *   - No `pdf-parse` / `mammoth` imports — incompatible with Workers runtime.
  */
 
 import type { Env } from './types';
 import { handleReport } from './routes/report';
+import {
+  handleTriggerFtcIngestion,
+  handleTriggerBlockList,
+} from './routes/admin';
 import { jsonError, jsonOk } from './lib/responses';
 import { generateBlockList } from './crons/block-list-generator';
+import { ingestFtcComplaints } from './crons/ftc-ingestion';
 
 export type { Env };
 
@@ -52,10 +60,31 @@ export default {
       try {
         return await handleReport(request, env);
       } catch (err) {
-        // Last-resort safety net — never leak stack traces to clients.
         console.error('handleReport unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error');
       }
+    }
+
+    // POST /_admin/trigger-ftc-ingestion
+    if (url.pathname === '/_admin/trigger-ftc-ingestion') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST' },
+        });
+      }
+      return await handleTriggerFtcIngestion(request, env);
+    }
+
+    // POST /_admin/trigger-block-list
+    if (url.pathname === '/_admin/trigger-block-list') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST' },
+        });
+      }
+      return await handleTriggerBlockList(request, env);
     }
 
     return new Response('Not found', { status: 404 });
@@ -63,9 +92,9 @@ export default {
 
   /**
    * Scheduled handler — dispatched per cron entry in wrangler.toml.
-   * Each branch matches an entry in [triggers].crons. Use waitUntil so
-   * the cron task survives past the synchronous return without blocking
-   * the dispatcher.
+   * Each branch matches an entry in [triggers].crons. Use waitUntil so the
+   * cron task survives past the synchronous return without blocking the
+   * dispatcher.
    */
   async scheduled(
     event: ScheduledEvent,
@@ -73,8 +102,19 @@ export default {
     ctx: ExecutionContext,
   ): Promise<void> {
     switch (event.cron) {
+      case '0 6 * * *':
+        ctx.waitUntil(
+          ingestFtcComplaints(env).catch((err) => {
+            console.error('[scheduled] FTC ingestion failed:', err);
+          }),
+        );
+        return;
       case '0 8 * * *':
-        ctx.waitUntil(generateBlockList(env));
+        ctx.waitUntil(
+          generateBlockList(env).catch((err) => {
+            console.error('[scheduled] Block list generation failed:', err);
+          }),
+        );
         return;
       default:
         console.warn(`[scheduled] no handler for cron "${event.cron}"`);

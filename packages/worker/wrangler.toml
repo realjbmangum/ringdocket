@@ -40,10 +40,13 @@ SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 BLOCKLIST_PUBLIC_URL = "https://blocklist.ringdocket.com"
 
 # --------------------------------------------------------------------
-# Runtime Secrets — set via `wrangler secret put <NAME>`
+# Runtime Secrets — set via `wrangler secret put <NAME>` or in the
+# Cloudflare dashboard (Settings → Variables and Secrets → Type: Secret).
 # NEVER add values to this file.
 #
 #   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+#   wrangler secret put FTC_API_KEY              # api.data.gov key, 1000/hr
+#   wrangler secret put ADMIN_TOKEN              # any random string, gates /_admin/*
 #   wrangler secret put STRIPE_SECRET_KEY
 #   wrangler secret put STRIPE_WEBHOOK_SECRET
 #   wrangler secret put REVENUECAT_WEBHOOK_SECRET
@@ -80,11 +83,11 @@ id = "342da3b7079644e4a14ae1b218512077"
 # --------------------------------------------------------------------
 [triggers]
 crons = [
-  "0 8 * * *",   # 08:00 UTC — corroboration promotion + block list snapshot
-  # "0 6 * * *",   # 06:00 UTC — FTC DNC feed ingestion
-  # "30 6 * * *",  # 06:30 UTC — FCC enforcement press releases
-  # "0 7 * * *",   # 07:00 UTC — ITG public traceback scrape
-  # "0 * * * *"    # hourly — block list deltas
+  "0 6 * * *",   # 06:00 UTC — FTC DNC ingestion + block list hydration
+  "0 8 * * *",   # 08:00 UTC — block list snapshot to R2
+  # "30 6 * * *",  # 06:30 UTC — FCC enforcement press releases (Phase 3)
+  # "0 7 * * *",   # 07:00 UTC — ITG public traceback scrape   (Phase 3)
+  # "0 * * * *"    # hourly — block list deltas                 (V2 optimization)
 ]
 
 # --------------------------------------------------------------------
