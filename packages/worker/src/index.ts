@@ -21,11 +21,12 @@
 
 import type { Env } from './types';
 import { handleReport } from './routes/report';
+import { handleDelistAppeal } from './routes/delist-appeal';
 import {
   handleTriggerFtcIngestion,
   handleTriggerBlockList,
 } from './routes/admin';
-import { jsonError, jsonOk } from './lib/responses';
+import { jsonError, jsonOk, handlePreflight } from './lib/responses';
 import { generateBlockList } from './crons/block-list-generator';
 import { ingestFtcComplaints } from './crons/ftc-ingestion';
 
@@ -38,6 +39,11 @@ export default {
     _ctx: ExecutionContext,
   ): Promise<Response> {
     const url = new URL(request.url);
+
+    // CORS preflight for any /api/* route
+    if (request.method === 'OPTIONS' && url.pathname.startsWith('/api/')) {
+      return handlePreflight(request);
+    }
 
     // GET /api/health
     if (url.pathname === '/api/health' && request.method === 'GET') {
@@ -62,6 +68,22 @@ export default {
       } catch (err) {
         console.error('handleReport unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error');
+      }
+    }
+
+    // POST /api/delist-appeals
+    if (url.pathname === '/api/delist-appeals') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST, OPTIONS' },
+        });
+      }
+      try {
+        return await handleDelistAppeal(request, env);
+      } catch (err) {
+        console.error('handleDelistAppeal unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
     }
 

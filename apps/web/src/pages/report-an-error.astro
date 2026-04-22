@@ -1,0 +1,275 @@
+---
+import Base from '../layouts/Base.astro';
+import DelistForm from '../components/islands/DelistForm.tsx';
+---
+
+<Base
+  title="Challenge a listing — Ringdocket"
+  description="Submit a delist appeal if a number is on the Ringdocket block list that shouldn't be."
+>
+  <main class="delist-main">
+    <header class="delist-head">
+      <p class="delist-kicker">Appeal</p>
+      <h1 class="delist-h1">
+        A number on the list <em>that shouldn't be?</em>
+      </h1>
+      <p class="delist-lead">
+        Ringdocket is a public record, and public records need a correction
+        mechanism. If a number you own or operate was wrongly added to the
+        block list, submit an appeal here. Every submission is read by a
+        human.
+      </p>
+    </header>
+
+    <div class="delist-panel">
+      <DelistForm client:load />
+    </div>
+
+    <aside class="delist-aside">
+      <h2 class="delist-aside-h2">What happens after you submit</h2>
+      <ol class="delist-aside-list">
+        <li>
+          <strong>We read every appeal.</strong> No captcha, no autoresponder
+          runaround. An actual person reviews the case.
+        </li>
+        <li>
+          <strong>We check the reporting record.</strong> How many corroborators?
+          Any FTC complaints? Any legitimate business registration for this
+          number? How long has it been active?
+        </li>
+        <li>
+          <strong>If the listing was wrong, we delist.</strong> You'll get an
+          email confirming the removal and a reference case ID. Corrections
+          appear on the campaign page next to the original listing — the record
+          stays transparent, including its corrections.
+        </li>
+        <li>
+          <strong>If the listing is correct, you'll hear why.</strong> We'll
+          explain the evidence supporting the listing without revealing
+          reporter identities.
+        </li>
+      </ol>
+      <p class="delist-aside-note">
+        Response window: 72 hours during the work week. Serious misuse (legal
+        threats, disclosure of confidential reporter data) results in appeal
+        denial without further correspondence.
+      </p>
+    </aside>
+  </main>
+</Base>
+
+<style>
+  .delist-main {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1rem, 3vw, 2rem);
+  }
+  .delist-head {
+    margin-bottom: 2.25rem;
+  }
+  .delist-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  .delist-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.875rem, 4vw, 2.625rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.875rem;
+    color: var(--ink-primary);
+  }
+  .delist-h1 em {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .delist-lead {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 62ch;
+    margin: 0;
+  }
+  .delist-panel {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: 2rem;
+  }
+  .delist-aside {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .delist-aside-h2 {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  .delist-aside-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    counter-reset: delist;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .delist-aside-list li {
+    padding-left: 2.5rem;
+    position: relative;
+    counter-increment: delist;
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+  }
+  .delist-aside-list li::before {
+    content: counter(delist, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+  }
+  .delist-aside-list strong {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-primary);
+  }
+  .delist-aside-note {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0.75rem 0.875rem;
+    background: var(--surface-inset);
+    border-left: 2px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  :global(.delist-form) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  :global(.delist-field) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  :global(.delist-label) {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-secondary);
+  }
+  :global(.delist-input),
+  :global(.delist-textarea) {
+    font-family: 'JetBrains Mono';
+    font-size: 0.9375rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--surface-paper);
+    color: var(--ink-primary);
+    transition: border-color 140ms ease-out;
+  }
+  :global(.delist-textarea) {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.55;
+    resize: vertical;
+    min-height: 140px;
+  }
+  :global(.delist-input:focus),
+  :global(.delist-textarea:focus) {
+    outline: none;
+    border-color: var(--ink-primary);
+  }
+  :global(.delist-hint) {
+    font-family: 'Newsreader';
+    font-size: 0.8125rem;
+    color: var(--ink-byline);
+    margin: 0;
+  }
+  :global(.delist-hint .low) {
+    color: var(--accent-signal);
+  }
+  :global(.delist-submit) {
+    align-self: flex-start;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    cursor: pointer;
+    transition: background 140ms ease-out;
+  }
+  :global(.delist-submit:hover:not(:disabled)) {
+    background: #2a2f3a;
+  }
+  :global(.delist-submit:disabled) {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  :global(.delist-error) {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    color: #b1271b;
+    margin: 0;
+  }
+  :global(.delist-sent) {
+    padding: 1.5rem;
+    background: var(--surface-inset);
+    border-left: 3px solid var(--accent-signal);
+    border-radius: 4px;
+  }
+  :global(.delist-sent-head) {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--ink-primary);
+    margin: 0 0 0.5rem;
+  }
+  :global(.delist-sent-body) {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0 0 0.875rem;
+  }
+  :global(.delist-link) {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  :global(.delist-link:hover) {
+    color: var(--ink-primary);
+  }
+</style>

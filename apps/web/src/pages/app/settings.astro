@@ -1,0 +1,214 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import AccountSettings from '../../components/islands/AccountSettings.tsx';
+---
+
+<AppLayout title="Settings — Ringdocket">
+  <div class="settings-page">
+    <header class="settings-head">
+      <p class="settings-kicker">Settings</p>
+      <h1 class="settings-h1">
+        Your account, <em>your record.</em>
+      </h1>
+      <p class="settings-lead">
+        Profile, plan, and email preferences. Billing management and account
+        deletion self-serve land in the next iteration — for now, the link
+        below routes to a human.
+      </p>
+    </header>
+    <AccountSettings client:load />
+  </div>
+</AppLayout>
+
+<style is:global>
+  .settings-page {
+    max-width: 720px;
+  }
+  .settings-head {
+    margin-bottom: 2rem;
+  }
+  .settings-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  .settings-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.875rem, 3.6vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.875rem;
+    color: var(--ink-primary);
+  }
+  .settings-h1 em {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .settings-lead {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 56ch;
+    margin: 0;
+  }
+
+  .settings-section {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.25rem 1.375rem;
+    margin-bottom: 1rem;
+  }
+  .settings-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+  .settings-section-title {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin: 0 0 0.875rem;
+  }
+  .settings-section-head .settings-section-title {
+    margin-bottom: 0;
+  }
+  .settings-save-status {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--accent-signal);
+  }
+  .settings-kv {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.875rem 1.25rem;
+    margin: 0;
+  }
+  .settings-kv div {
+    border-top: 1px solid var(--rule-subtle);
+    padding-top: 0.625rem;
+  }
+  .settings-kv dt {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-byline);
+    margin: 0 0 0.25rem;
+  }
+  .settings-kv dd {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .settings-sub-meta {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+  }
+
+  .settings-prefs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .settings-pref-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.875rem;
+    align-items: start;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  .settings-prefs li:last-child .settings-pref-row {
+    border-bottom: none;
+  }
+  .settings-pref-row input[type='checkbox'] {
+    margin-top: 0.2rem;
+    accent-color: var(--ink-primary);
+    width: 16px;
+    height: 16px;
+  }
+  .settings-pref-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .settings-pref-title {
+    font-family: 'Newsreader';
+    font-weight: 500;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-primary);
+  }
+  .settings-pref-body {
+    font-family: 'Newsreader';
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+  }
+  .settings-pref-note {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+  }
+
+  .settings-danger {
+    border-color: color-mix(in srgb, var(--accent-signal) 30%, var(--rule));
+  }
+  .settings-danger-body {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0 0 0.875rem;
+  }
+  .settings-danger-link {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--accent-signal);
+    text-decoration: none;
+  }
+  .settings-danger-link:hover {
+    text-decoration: underline;
+  }
+
+  .settings-skel-row {
+    height: 80px;
+    background: linear-gradient(
+      90deg,
+      var(--surface-inset) 0%,
+      color-mix(in srgb, var(--surface-inset) 60%, var(--surface-raised)) 50%,
+      var(--surface-inset) 100%
+    );
+    border-radius: 8px;
+    margin-bottom: 0.875rem;
+    animation: rd-skel 1.4s ease-in-out infinite;
+  }
+  @keyframes rd-skel {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  .settings-error {
+    color: #b1271b;
+    font-family: 'Newsreader';
+  }
+</style>
