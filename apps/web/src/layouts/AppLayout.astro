@@ -1,0 +1,160 @@
+---
+import '../styles/global.css';
+import AppNav from '../components/islands/AppNav.tsx';
+import AuthGuard from '../components/islands/AuthGuard.tsx';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Ringdocket' } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+    <link rel="preload" href="/fonts/bricolage-grotesque-variable.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/newsreader-variable.ttf" as="font" type="font/ttf" crossorigin />
+  </head>
+  <body class="app-body">
+    <AppNav client:load currentPath={currentPath} />
+    <AuthGuard client:load>
+      <main class="app-main">
+        <slot />
+      </main>
+    </AuthGuard>
+
+    <style is:global>
+      .app-body {
+        min-height: 100vh;
+        background: var(--surface-paper);
+      }
+      .app-main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem clamp(1rem, 3vw, 2.5rem) 4rem;
+      }
+      .app-nav {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: color-mix(in srgb, var(--surface-paper) 88%, transparent);
+        backdrop-filter: blur(10px) saturate(1.1);
+        -webkit-backdrop-filter: blur(10px) saturate(1.1);
+        border-bottom: 1px solid var(--rule-subtle);
+      }
+      .app-nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0.75rem clamp(1rem, 3vw, 2.5rem);
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 2rem;
+      }
+      @media (max-width: 720px) {
+        .app-nav-inner {
+          grid-template-columns: 1fr auto;
+          gap: 0.75rem;
+        }
+      }
+      .app-wordmark {
+        font-family: 'Bricolage Grotesque';
+        font-weight: 700;
+        font-size: 1.0625rem;
+        color: var(--ink-primary);
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .app-wordmark::after {
+        content: '.';
+        color: var(--accent-signal);
+        margin-left: 0.05em;
+      }
+      .app-nav-links {
+        display: flex;
+        gap: 1.75rem;
+        align-items: center;
+      }
+      @media (max-width: 720px) {
+        .app-nav-links {
+          grid-column: 1 / -1;
+          order: 3;
+          justify-content: flex-start;
+          gap: 1.25rem;
+          overflow-x: auto;
+          padding: 0.5rem 0 0;
+          border-top: 1px solid var(--rule-subtle);
+          margin-top: 0.5rem;
+        }
+      }
+      .app-nav-link {
+        font-family: 'Inter Tight';
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: var(--ink-secondary);
+        text-decoration: none;
+        padding: 0.25rem 0;
+        border-bottom: 1.5px solid transparent;
+        transition: color 140ms ease-out, border-color 140ms ease-out;
+        white-space: nowrap;
+      }
+      .app-nav-link:hover {
+        color: var(--ink-primary);
+      }
+      .app-nav-link.active {
+        color: var(--ink-primary);
+        border-bottom-color: var(--ink-primary);
+      }
+      .app-nav-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .app-nav-email {
+        font-family: 'JetBrains Mono';
+        font-size: 0.75rem;
+        color: var(--ink-byline);
+      }
+      @media (max-width: 720px) {
+        .app-nav-email {
+          display: none;
+        }
+      }
+      .app-nav-signout {
+        font-family: 'Inter Tight';
+        font-weight: 500;
+        font-size: 0.8125rem;
+        color: var(--ink-secondary);
+        background: transparent;
+        border: 1px solid var(--rule);
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 140ms ease-out, color 140ms ease-out;
+      }
+      .app-nav-signout:hover {
+        background: var(--surface-inset);
+        color: var(--ink-primary);
+      }
+      .auth-checking {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem clamp(1rem, 3vw, 2.5rem);
+      }
+      .auth-checking-label {
+        font-family: 'JetBrains Mono';
+        font-size: 0.75rem;
+        color: var(--ink-byline);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+    </style>
+  </body>
+</html>
