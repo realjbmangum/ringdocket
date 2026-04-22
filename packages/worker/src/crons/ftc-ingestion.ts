@@ -138,11 +138,25 @@ async function flushBatch(
   return count ?? rows.length;
 }
 
-export async function ingestFtcComplaints(env: Env): Promise<IngestionResult> {
+export interface IngestOptions {
+  /** Override the auto-computed window. If provided, both must be set. */
+  windowFrom?: string;
+  windowTo?: string;
+  /** Skip the hydration RPC call after ingestion (useful for backfill chunks). */
+  skipHydration?: boolean;
+}
+
+export async function ingestFtcComplaints(
+  env: Env,
+  options: IngestOptions = {},
+): Promise<IngestionResult> {
   const started = Date.now();
   const supabase = getServiceRoleSupabase(env);
 
-  const { from, to } = await computeIngestionWindow(supabase);
+  const { from, to } =
+    options.windowFrom && options.windowTo
+      ? { from: options.windowFrom, to: options.windowTo }
+      : await computeIngestionWindow(supabase);
   console.log(`[ftc-ingestion] window=${from}..${to}`);
 
   let seen = 0;
@@ -183,10 +197,19 @@ export async function ingestFtcComplaints(env: Env): Promise<IngestionResult> {
     `[ftc-ingestion] seen=${seen} ingested=${ingested} skipped=${skipped}`,
   );
 
-  const hydration = await hydrateBlockListFromFtc(supabase);
-  console.log(
-    `[ftc-ingestion] hydration: promoted=${hydration.numbersPromoted} (inserted=${hydration.numbersInserted} updated=${hydration.numbersUpdated})`,
-  );
+  const hydration = options.skipHydration
+    ? {
+        numbersPromoted: 0,
+        numbersInserted: 0,
+        numbersUpdated: 0,
+        topNumbers: [],
+      }
+    : await hydrateBlockListFromFtc(supabase);
+  if (!options.skipHydration) {
+    console.log(
+      `[ftc-ingestion] hydration: promoted=${hydration.numbersPromoted} (inserted=${hydration.numbersInserted} updated=${hydration.numbersUpdated})`,
+    );
+  }
 
   return {
     windowFrom: from,

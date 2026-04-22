@@ -47,8 +47,29 @@ export async function handleTriggerFtcIngestion(
   const authErr = requireAdminToken(req, env);
   if (authErr) return authErr;
 
+  // Optional URL params to override the auto-computed window. Used for
+  // chunked historical backfills. Both must be present to take effect.
+  //   ?from=YYYY-MM-DD&to=YYYY-MM-DD
+  //   ?skipHydration=1  (to defer the hydration RPC to a later call)
+  const url = new URL(req.url);
+  const windowFrom = url.searchParams.get('from') ?? undefined;
+  const windowTo = url.searchParams.get('to') ?? undefined;
+  const skipHydration = url.searchParams.get('skipHydration') === '1';
+
+  if ((windowFrom && !windowTo) || (!windowFrom && windowTo)) {
+    return jsonError(
+      400,
+      'invalid_input',
+      'Both `from` and `to` query params are required when overriding the window',
+    );
+  }
+
   try {
-    const result = await ingestFtcComplaints(env);
+    const result = await ingestFtcComplaints(env, {
+      windowFrom,
+      windowTo,
+      skipHydration,
+    });
     return jsonOk({ ok: true, ...result });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

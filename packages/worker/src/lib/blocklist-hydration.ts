@@ -10,7 +10,17 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-export const DEFAULT_CORROBORATION_THRESHOLD = 3;
+/**
+ * FTC data is already a pre-verified federal record — every complaint in
+ * the DNC feed is sworn-to by a named consumer under the reporting form.
+ * The 3-distinct-accounts-threshold that governs user reports is an
+ * anti-griefing protection against throwaway accounts; that risk does not
+ * apply to FTC-sourced data. So the FTC hydration threshold is 1.
+ *
+ * User reports retain the 3-account threshold (enforced in a different
+ * code path: pending_reports trigger in migration 003).
+ */
+export const DEFAULT_CORROBORATION_THRESHOLD = 1;
 export const DEFAULT_WINDOW_DAYS = 90;
 
 export interface HydrationResult {
