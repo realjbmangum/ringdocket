@@ -17,21 +17,29 @@ export function formatShortTimestamp(iso: string | null): string {
   return `${month} ${day} ${h}:${m}`;
 }
 
-/** Relative time — "14 min ago", "2 hr ago", "yesterday", "Apr 14". */
+/** Relative time — "14 min ago", "2 hr ago", "in 14 days", "tomorrow". */
 export function relativeTime(iso: string | null): string {
   if (!iso) return '—';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
-  const now = Date.now();
-  const diffMs = now - d.getTime();
-  const mins = Math.floor(diffMs / 60000);
+  const diffMs = Date.now() - d.getTime();
+  const past = diffMs >= 0;
+  const absMs = Math.abs(diffMs);
+  const mins = Math.floor(absMs / 60000);
   if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins} min ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} hr ago`;
   const days = Math.floor(hours / 24);
-  if (days === 1) return 'yesterday';
-  if (days < 7) return `${days} days ago`;
+  if (past) {
+    if (mins < 60) return `${mins} min ago`;
+    if (hours < 24) return `${hours} hr ago`;
+    if (days === 1) return 'yesterday';
+    if (days < 7) return `${days} days ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  if (mins < 60) return `in ${mins} min`;
+  if (hours < 24) return `in ${hours} hr`;
+  if (days === 1) return 'tomorrow';
+  if (days < 30) return `in ${days} days`;
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
