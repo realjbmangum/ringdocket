@@ -7,6 +7,7 @@ interface Props {
 
 const LINKS: Array<{ href: string; label: string }> = [
   { href: '/app/home', label: 'Home' },
+  { href: '/app/report', label: 'Report' },
   { href: '/app/campaigns', label: 'Campaigns' },
   { href: '/app/my-impact', label: 'My Impact' },
   { href: '/app/settings', label: 'Settings' },

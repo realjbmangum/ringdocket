@@ -45,7 +45,7 @@ export async function handleReport(req: Request, env: Env): Promise<Response> {
     userId = await verifyJwtAndGetUserId(anon, token);
   } catch (err) {
     if (err instanceof UnauthorizedError) {
-      return jsonError(401, 'unauthorized', err.message);
+      return jsonError(401, 'unauthorized', err.message, undefined, req);
     }
     throw err;
   }
@@ -55,24 +55,28 @@ export async function handleReport(req: Request, env: Env): Promise<Response> {
   try {
     raw = await req.json();
   } catch {
-    return jsonError(400, 'invalid_input', 'Body is not valid JSON');
+    return jsonError(400, 'invalid_input', 'Body is not valid JSON', undefined, req);
   }
   const parsed = ReportInputSchema.safeParse(raw);
   if (!parsed.success) {
-    return jsonError(400, 'invalid_input', 'Invalid report payload', {
-      issues: parsed.error.issues,
-    });
+    return jsonError(
+      400,
+      'invalid_input',
+      'Invalid report payload',
+      { issues: parsed.error.issues },
+      req,
+    );
   }
   const input = parsed.data;
 
   // ---- 3. Device fingerprint --------------------------------------------
   const deviceHeader = req.headers.get('X-Device-Id') ?? req.headers.get('x-device-id');
   if (!deviceHeader) {
-    return jsonError(400, 'invalid_input', 'X-Device-Id header is required');
+    return jsonError(400, 'invalid_input', 'X-Device-Id header is required', undefined, req);
   }
   const deviceParsed = DeviceFingerprintSchema.safeParse(deviceHeader);
   if (!deviceParsed.success) {
-    return jsonError(400, 'invalid_input', 'X-Device-Id must be a UUID');
+    return jsonError(400, 'invalid_input', 'X-Device-Id must be a UUID', undefined, req);
   }
   const deviceFingerprint = deviceParsed.data;
 
@@ -87,7 +91,7 @@ export async function handleReport(req: Request, env: Env): Promise<Response> {
   } catch {
     // Without a usable IP we can't enforce the corroboration distinctness
     // check downstream. Reject rather than silently weaken security.
-    return jsonError(400, 'invalid_input', 'Could not derive IP subnet');
+    return jsonError(400, 'invalid_input', 'Could not derive IP subnet', undefined, req);
   }
 
   // ---- 5. Quota check ----------------------------------------------------
@@ -98,6 +102,7 @@ export async function handleReport(req: Request, env: Env): Promise<Response> {
       'quota_exceeded',
       `Free-tier monthly cap of ${FREE_TIER_MONTHLY_REPORT_QUOTA} reports reached`,
       { used, cap: FREE_TIER_MONTHLY_REPORT_QUOTA },
+      req,
     );
   }
 
@@ -122,7 +127,7 @@ export async function handleReport(req: Request, env: Env): Promise<Response> {
     .single();
 
   if (error || !data) {
-    return jsonError(500, 'internal', 'Failed to record report');
+    return jsonError(500, 'internal', 'Failed to record report', undefined, req);
   }
 
   // ---- 8. Bump counter (best-effort) ------------------------------------
@@ -134,12 +139,13 @@ export async function handleReport(req: Request, env: Env): Promise<Response> {
     // swallow — see above
   }
 
-  const response: ReportAcceptedResponse = {
+  const response: ReportAcceptedResponse & { quotaRemaining: number } = {
     id: (data as { id: string }).id,
     status: 'pending',
     receivedAt:
       (data as { submitted_at?: string }).submitted_at ?? new Date().toISOString(),
+    quotaRemaining: Math.max(0, FREE_TIER_MONTHLY_REPORT_QUOTA - used - 1),
   };
 
-  return jsonOk(response);
+  return jsonOk(response, 200, req);
 }

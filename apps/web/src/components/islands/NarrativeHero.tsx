@@ -138,10 +138,14 @@ export default function NarrativeHero() {
           </h1>
           <p className="hero-lead">
             The block list is already working — 15,000+ numbers syncing to
-            everyone's phones nightly. When you report a spam call in the iOS
-            app, your flag joins the pending queue. If two more corroborate
-            within 14 days, the number promotes to the public block list — and
-            stops ringing for every other Ringdocket user.
+            everyone's phones nightly. When you{' '}
+            <a className="hero-inline-link" href="/app/report">
+              file a report
+            </a>{' '}
+            from your dashboard, your flag joins the pending queue. If two
+            more distinct accounts corroborate within 14 days, the number
+            promotes to the public block list — and stops ringing for every
+            other Ringdocket user.
           </p>
         </>
       ) : (

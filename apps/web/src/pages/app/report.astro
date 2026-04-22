@@ -1,0 +1,332 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import ReportForm from '../../components/islands/ReportForm.tsx';
+---
+
+<AppLayout title="Report a number — Ringdocket">
+  <div class="report-page">
+    <header class="report-head">
+      <p class="report-kicker">New report</p>
+      <h1 class="report-h1">
+        File a report. <em>Put it on the record.</em>
+      </h1>
+      <p class="report-lead">
+        Every flag sits in a public pending queue. When two more distinct
+        accounts — different devices, different networks — corroborate the
+        same number within 14 days, it promotes to the block list and stops
+        ringing for everyone.
+      </p>
+    </header>
+
+    <div class="report-panel">
+      <ReportForm client:load />
+    </div>
+
+    <aside class="report-aside">
+      <h2 class="report-aside-h2">How the pipeline works</h2>
+      <ol class="report-aside-list">
+        <li>
+          <strong>You file a report.</strong> It lands in
+          <code>pending_reports</code> with your user ID, device, and an IP
+          /24 — all three must be unique per corroborator.
+        </li>
+        <li>
+          <strong>Two more accounts corroborate.</strong> Within a rolling
+          14-day window. A Postgres trigger watches for the threshold.
+        </li>
+        <li>
+          <strong>Promotion fires.</strong> The number moves from pending to
+          the public <code>numbers</code> table with state
+          <code>corroborated</code>. The first flagger earns first-flag
+          credit on their profile.
+        </li>
+        <li>
+          <strong>Next morning, the block list ships.</strong> The 08:00 UTC
+          cron writes a fresh snapshot to R2 and every Ringdocket device
+          syncs on next wake.
+        </li>
+      </ol>
+      <p class="report-aside-note">
+        The threshold is non-negotiable — three distinct accounts, three
+        distinct devices, three distinct IP /24s. It's the defamation shield
+        called out in the security review: a number never goes on the public
+        record on a single person's say-so.
+      </p>
+    </aside>
+  </div>
+</AppLayout>
+
+<style is:global>
+  .report-page {
+    max-width: 820px;
+  }
+  .report-head {
+    margin-bottom: 2rem;
+  }
+  .report-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  .report-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.875rem;
+    color: var(--ink-primary);
+  }
+  .report-h1 em {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .report-lead {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 62ch;
+    margin: 0;
+  }
+  .report-panel {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    margin-bottom: 2rem;
+  }
+  .report-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .report-quota {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-inset);
+    border-left: 2px solid var(--rule);
+    border-radius: 2px;
+    margin: 0;
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .report-quota-label {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .report-quota-value {
+    color: var(--ink-primary);
+  }
+  .report-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .report-label {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-secondary);
+  }
+  .report-optional {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-byline);
+    font-weight: 400;
+  }
+  .report-input,
+  .report-select,
+  .report-textarea {
+    font-family: 'JetBrains Mono';
+    font-size: 0.9375rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    background: var(--surface-paper);
+    color: var(--ink-primary);
+    transition: border-color 140ms ease-out;
+  }
+  .report-select {
+    font-family: 'Inter Tight';
+    font-size: 0.9375rem;
+    cursor: pointer;
+  }
+  .report-textarea {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.55;
+    resize: vertical;
+    min-height: 120px;
+  }
+  .report-input:focus,
+  .report-select:focus,
+  .report-textarea:focus {
+    outline: none;
+    border-color: var(--ink-primary);
+  }
+  .report-hint {
+    font-family: 'Newsreader';
+    font-size: 0.8125rem;
+    color: var(--ink-byline);
+    margin: 0;
+  }
+  .report-hint .low {
+    color: var(--accent-signal);
+  }
+  .report-submit {
+    align-self: flex-start;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    cursor: pointer;
+    transition: background 140ms ease-out;
+  }
+  .report-submit:hover:not(:disabled) {
+    background: #2a2f3a;
+  }
+  .report-submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .report-error {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    color: #b1271b;
+    margin: 0;
+  }
+  .report-sent {
+    padding: 1.5rem;
+    background: var(--surface-inset);
+    border-left: 3px solid var(--accent-signal);
+    border-radius: 4px;
+  }
+  .report-sent-head {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--ink-primary);
+    margin: 0 0 0.5rem;
+  }
+  .report-sent-body {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0 0 1rem;
+  }
+  .report-sent-num {
+    font-family: 'JetBrains Mono';
+    font-size: 0.9375rem;
+    color: var(--ink-primary);
+  }
+  .report-sent-actions {
+    display: flex;
+    gap: 1.25rem;
+    align-items: baseline;
+  }
+  .report-sent-link {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--accent-signal);
+    text-decoration: none;
+  }
+  .report-sent-link:hover {
+    text-decoration: underline;
+  }
+  .report-sent-again {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .report-sent-again:hover {
+    color: var(--ink-primary);
+  }
+
+  .report-aside {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .report-aside-h2 {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  .report-aside-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    counter-reset: rpt;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .report-aside-list li {
+    padding-left: 2.5rem;
+    position: relative;
+    counter-increment: rpt;
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+  }
+  .report-aside-list li::before {
+    content: counter(rpt, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+  }
+  .report-aside-list strong {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-primary);
+  }
+  .report-aside-list code {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--ink-mono);
+    background: var(--surface-inset);
+    padding: 0.05em 0.4em;
+    border-radius: 2px;
+  }
+  .report-aside-note {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0.75rem 0.875rem;
+    background: var(--surface-inset);
+    border-left: 2px solid var(--rule);
+    border-radius: 2px;
+  }
+</style>
