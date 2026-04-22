@@ -298,6 +298,90 @@ export const DelistAppealRowSchema = z.object({
 export type DelistAppealRow = z.infer<typeof DelistAppealRowSchema>;
 
 // ============================================================================
+// FTC DNC Complaints API (https://api.ftc.gov/v0/dnc-complaints)
+// ============================================================================
+
+/**
+ * Raw complaint record as returned by the FTC API.
+ *
+ * The FTC API returns a JSON-API-ish envelope: `{ data: [{ id, attributes }], meta, links }`.
+ * `attributes` uses kebab-case field names. Dates are "YYYY-MM-DD HH:MM:SS"
+ * (NOT strict ISO 8601 despite what the FTC docs claim).
+ *
+ * `company-phone-number` is frequently empty — complaints without a phone
+ * number are useless for block-list hydration and should be skipped.
+ */
+export const FtcComplaintAttributesSchema = z.object({
+  'company-phone-number': z.string(),
+  'created-date': z.string(),
+  'violation-date': z.string(),
+  'consumer-city': z.string().optional().default(''),
+  'consumer-state': z.string().optional().default(''),
+  'consumer-area-code': z.string().optional().default(''),
+  subject: z.string().optional().default(''),
+  'recorded-message-or-robocall': z
+    .union([z.literal('Y'), z.literal('N'), z.literal('')])
+    .default(''),
+  seq: z.number().int().optional(),
+});
+export type FtcComplaintAttributes = z.infer<typeof FtcComplaintAttributesSchema>;
+
+export const FtcComplaintEnvelopeSchema = z.object({
+  type: z.literal('dnc_complaint'),
+  id: z.string().min(1),
+  attributes: FtcComplaintAttributesSchema,
+});
+export type FtcComplaintEnvelope = z.infer<typeof FtcComplaintEnvelopeSchema>;
+
+export const FtcComplaintListResponseSchema = z.object({
+  data: z.array(FtcComplaintEnvelopeSchema),
+  meta: z
+    .object({
+      'records-this-page': z.number().int().nonnegative().optional(),
+      // record-total is unreliable — API sometimes returns the last record's
+      // data here instead of a count. Don't trust it for pagination termination.
+    })
+    .passthrough(),
+  links: z
+    .object({
+      self: z.string().url().optional(),
+    })
+    .passthrough()
+    .optional(),
+});
+export type FtcComplaintListResponse = z.infer<typeof FtcComplaintListResponseSchema>;
+
+/**
+ * DB row shape for ftc_complaints table (post-migration 005).
+ *
+ * `ftc_id` is the FTC's hash string (e.g., "1f639a391450becbe65095b4cd574ff2")
+ * used as the natural key for upsert idempotency. Added in migration 005.
+ */
+export const FtcComplaintRowSchema = z.object({
+  id: UuidSchema,
+  ftc_id: z.string().min(1),
+  number: E164PhoneSchema,
+  reason: z.string().nullable(),
+  state: z.string().nullable(),
+  consumer_city: z.string().nullable(),
+  consumer_area_code: z.string().nullable(),
+  is_robocall: z.boolean().nullable(),
+  filed_at: TimestampSchema.nullable(),
+  source_url: z.string().nullable(),
+  ingested_at: TimestampSchema,
+  created_at: TimestampSchema,
+});
+export type FtcComplaintRow = z.infer<typeof FtcComplaintRowSchema>;
+
+/** Insert payload for ftc_complaints — shape the cron sends to Supabase. */
+export const FtcComplaintInsertSchema = FtcComplaintRowSchema.omit({
+  id: true,
+  ingested_at: true,
+  created_at: true,
+});
+export type FtcComplaintInsert = z.infer<typeof FtcComplaintInsertSchema>;
+
+// ============================================================================
 // Rate limiting constants — must match the PRD + security review
 // ============================================================================
 
