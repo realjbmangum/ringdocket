@@ -23,6 +23,7 @@ import type { Env } from './types';
 import { handleReport } from './routes/report';
 import { handleDelistAppeal } from './routes/delist-appeal';
 import { handleMyPendingReports } from './routes/my-pending-reports';
+import { handleSimulateCorroboration } from './routes/simulate-corroboration';
 import {
   handleTriggerFtcIngestion,
   handleTriggerBlockList,
@@ -102,6 +103,17 @@ export default {
         console.error('handleDelistAppeal unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
+    }
+
+    // POST /_admin/simulate-corroboration
+    if (url.pathname === '/_admin/simulate-corroboration') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST' },
+        });
+      }
+      return await handleSimulateCorroboration(request, env);
     }
 
     // POST /_admin/trigger-ftc-ingestion
