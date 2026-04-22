@@ -1,0 +1,15 @@
+# Cloudflare Pages edge redirects.
+#
+# Both ringdocket.com and app.ringdocket.com serve the same Astro build.
+# For auth and dashboard routes, canonicalize to the app subdomain so the
+# Supabase redirect allowlist stays scoped to app.ringdocket.com.
+#
+# Apex -> app.
+https://ringdocket.com/login         https://app.ringdocket.com/login         301
+https://ringdocket.com/app           https://app.ringdocket.com/app/home      301
+https://ringdocket.com/app/*         https://app.ringdocket.com/app/:splat    301
+
+# www -> app.
+https://www.ringdocket.com/login     https://app.ringdocket.com/login         301
+https://www.ringdocket.com/app       https://app.ringdocket.com/app/home      301
+https://www.ringdocket.com/app/*     https://app.ringdocket.com/app/:splat    301

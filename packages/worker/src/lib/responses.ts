@@ -3,6 +3,7 @@ import type { ApiErrorCode, ApiErrorResponse } from '@ringdocket/shared';
 const ALLOWED_ORIGINS = new Set([
   'https://ringdocket.com',
   'https://www.ringdocket.com',
+  'https://app.ringdocket.com',
   'http://localhost:4321',
   'http://127.0.0.1:4321',
 ]);
