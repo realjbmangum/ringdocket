@@ -22,6 +22,7 @@
 import type { Env } from './types';
 import { handleReport } from './routes/report';
 import { handleDelistAppeal } from './routes/delist-appeal';
+import { handleMyPendingReports } from './routes/my-pending-reports';
 import {
   handleTriggerFtcIngestion,
   handleTriggerBlockList,
@@ -68,6 +69,22 @@ export default {
       } catch (err) {
         console.error('handleReport unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error');
+      }
+    }
+
+    // GET /api/my-pending-reports
+    if (url.pathname === '/api/my-pending-reports') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'GET, OPTIONS' },
+        });
+      }
+      try {
+        return await handleMyPendingReports(request, env);
+      } catch (err) {
+        console.error('handleMyPendingReports unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
     }
 
