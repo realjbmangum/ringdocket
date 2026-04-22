@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 
-const WORKER_URL = import.meta.env.PUBLIC_WORKER_URL as string;
+const WORKER_URL = ((import.meta.env.PUBLIC_WORKER_URL as string) ?? '')
+  .trim()
+  .replace(/\/+$/, '');
 
 type Status =
   | { kind: 'idle' }

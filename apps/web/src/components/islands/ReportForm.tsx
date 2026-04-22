@@ -2,7 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { getBrowserSupabase } from '../../lib/supabase';
 import { getDeviceId } from '../../lib/device';
 
-const WORKER_URL = import.meta.env.PUBLIC_WORKER_URL as string;
+const WORKER_URL = ((import.meta.env.PUBLIC_WORKER_URL as string) ?? '')
+  .trim()
+  .replace(/\/+$/, '');
 
 const CATEGORIES: Array<{ value: string; label: string }> = [
   { value: 'unknown', label: 'Not sure / unknown' },
