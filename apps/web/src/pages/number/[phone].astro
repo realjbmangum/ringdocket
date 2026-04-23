@@ -1,0 +1,497 @@
+---
+import { createClient } from '@supabase/supabase-js';
+import Base from '../../layouts/Base.astro';
+
+interface NumberRowRaw {
+  phone: string;
+  reputation_score: number;
+  corroborated_at: string | null;
+  current_state: string;
+  campaign: { slug: string; name: string } | null;
+}
+
+export async function getStaticPaths() {
+  const url = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined)?.trim();
+  const key = (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined)?.trim();
+  if (!url || !key) {
+    console.warn('[number/[phone]] missing PUBLIC_SUPABASE_URL/KEY');
+    return [];
+  }
+  const client = createClient(url, key, { auth: { persistSession: false } });
+
+  // PostgREST caps each response at 1000 rows — paginate across all
+  // corroborated numbers. At ~15k rows this is ~15 round-trips, a few
+  // seconds added to the build. Cheap insurance against a stale
+  // hardcoded list.
+  const PAGE = 1000;
+  const MAX_PAGES = 100;
+  const all: NumberRowRaw[] = [];
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const from = page * PAGE;
+    const to = from + PAGE - 1;
+    const { data, error } = await client
+      .from('numbers')
+      .select(
+        'phone, reputation_score, corroborated_at, current_state, campaign:campaigns(slug, name)',
+      )
+      .eq('current_state', 'corroborated')
+      .order('phone', { ascending: true })
+      .range(from, to);
+    if (error) {
+      console.warn('[number/[phone]] fetch failed:', error.message);
+      break;
+    }
+    const rows = (data ?? []) as unknown as NumberRowRaw[];
+    all.push(...rows);
+    if (rows.length < PAGE) break;
+  }
+
+  return all.map((row) => ({
+    // URL format: /number/18044989397 (digits only, no + prefix).
+    params: { phone: row.phone.replace(/^\+/, '') },
+    props: { row },
+  }));
+}
+
+const { row } = Astro.props as { row: NumberRowRaw };
+
+function formatPhone(e164: string): string {
+  const digits = e164.replace(/^\+1/, '').replace(/\D/g, '');
+  if (digits.length !== 10) return e164;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+function formatMonth(iso: string | null): string {
+  if (!iso) return 'recently';
+  return new Date(iso).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+const displayPhone = formatPhone(row.phone);
+const digitsOnly = row.phone.replace(/^\+/, '');
+const reports = Math.round(row.reputation_score);
+const corroboratedOn = formatMonth(row.corroborated_at);
+const campaignName = row.campaign?.name ?? null;
+const campaignSlug = row.campaign?.slug ?? null;
+
+const pageTitle = `Is ${displayPhone} a scam? — Ringdocket`;
+const pageDescription = campaignName
+  ? `${displayPhone} is on the Ringdocket block list with ${reports.toLocaleString()} reports. Classified as ${campaignName}. Block it free.`
+  : `${displayPhone} is on the Ringdocket block list with ${reports.toLocaleString()} reports. Get this and 15,000+ other scam numbers blocked on your phone free.`;
+const canonicalUrl = `https://ringdocket.com/number/${digitsOnly}`;
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: `Is ${displayPhone} a scam?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: campaignName
+          ? `Yes. ${displayPhone} is on the Ringdocket public block list with ${reports.toLocaleString()} reports, classified as ${campaignName}. It was corroborated on ${corroboratedOn}.`
+          : `Yes. ${displayPhone} is on the Ringdocket public block list with ${reports.toLocaleString()} reports. It was corroborated on ${corroboratedOn}.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How can I block this number?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Sign up for Ringdocket free. The block list syncs to your phone overnight and silences listed numbers before they ring.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How did this number get on the list?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Every number is corroborated by three distinct user reports within a rolling 14-day window, OR by one or more FTC Do Not Call complaints in the last 90 days. No number is added on a single person\u2019s say-so.',
+      },
+    },
+  ],
+};
+---
+
+<Base title={pageTitle} description={pageDescription}>
+  <link rel="canonical" href={canonicalUrl} slot="head" />
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(faqJsonLd)}
+  />
+
+  <main class="num-main">
+    <nav class="num-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Ringdocket</a>
+      <span aria-hidden="true">/</span>
+      <a href="/campaigns">Campaigns</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{displayPhone}</span>
+    </nav>
+
+    <header class="num-head">
+      <p class="num-kicker">Phone lookup</p>
+      <h1 class="num-h1">
+        Is <span class="num-phone">{displayPhone}</span> a scam?
+      </h1>
+      <p class="num-verdict">
+        <span class="num-verdict-chip">
+          <span class="num-verdict-dot" aria-hidden="true"></span>
+          Yes — on the block list
+        </span>
+      </p>
+      <p class="num-lead">
+        <strong>{displayPhone}</strong> has{' '}
+        <strong>{reports.toLocaleString()} {reports === 1 ? 'report' : 'reports'}</strong>{' '}
+        on the Ringdocket public record. It was corroborated on{' '}
+        <strong>{corroboratedOn}</strong>{campaignName ? ' and classified as a ' : '.'}
+        {campaignName && campaignSlug && (
+          <>
+            <a href={`/campaigns/${campaignSlug}`} class="num-campaign-link">
+              {campaignName}
+            </a>
+            {' scam.'}
+          </>
+        )}
+      </p>
+    </header>
+
+    <section class="num-facts">
+      <dl class="num-facts-grid">
+        <div>
+          <dt>Status</dt>
+          <dd>On the block list</dd>
+        </div>
+        <div>
+          <dt>Reports</dt>
+          <dd>{reports.toLocaleString()}</dd>
+        </div>
+        <div>
+          <dt>Corroborated</dt>
+          <dd>{corroboratedOn}</dd>
+        </div>
+        {campaignName && (
+          <div>
+            <dt>Classification</dt>
+            <dd>{campaignName}</dd>
+          </div>
+        )}
+      </dl>
+    </section>
+
+    <section class="num-cta">
+      <h2>Block this — and 15,000+ others — on your phone.</h2>
+      <p>
+        Ringdocket Free syncs the full block list to your phone overnight.{' '}
+        {displayPhone} and every other corroborated scam number never ring.
+      </p>
+      <a href="https://app.ringdocket.com/login" class="num-cta-btn">
+        Sign up free →
+      </a>
+    </section>
+
+    <section class="num-faq">
+      <h2>Questions about {displayPhone}</h2>
+      <details>
+        <summary>How did this number get on the list?</summary>
+        <p>
+          A number promotes to the Ringdocket public block list two ways:
+        </p>
+        <ol>
+          <li>
+            Three distinct user accounts — different devices, different
+            networks — all report it within a rolling 14-day window.
+          </li>
+          <li>
+            One or more FTC Do Not Call complaints are filed against it in
+            the last 90 days.
+          </li>
+        </ol>
+        <p>
+          Either path ends with the same outcome: the number ships to every
+          Ringdocket user's phone on the next overnight sync.
+        </p>
+      </details>
+      <details>
+        <summary>Who owns {displayPhone}?</summary>
+        <p>
+          Ringdocket doesn't identify the operator behind a spam number. The
+          public record shows the pattern — how often it's reported, what
+          campaign it belongs to, when it was corroborated. Carrier-level
+          attribution requires an Industry Traceback Group subpoena, which we
+          don't issue.
+        </p>
+      </details>
+      <details>
+        <summary>Is this my number and I shouldn't be listed?</summary>
+        <p>
+          If you believe <strong>{displayPhone}</strong> was added to the list
+          in error, submit a delist appeal. Every appeal is read by a human.
+        </p>
+        <p>
+          <a href="/report-an-error" class="num-appeal-link">
+            Challenge this listing →
+          </a>
+        </p>
+      </details>
+    </section>
+
+    <section class="num-related">
+      <h2>What else is on the list?</h2>
+      <p>
+        Ringdocket tracks 13 active scam-call campaigns.{' '}
+        <a href="/campaigns">Browse all campaigns →</a>
+      </p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .num-main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .num-breadcrumb {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+  }
+  .num-breadcrumb a {
+    color: var(--ink-secondary);
+    text-decoration: none;
+  }
+  .num-breadcrumb a:hover {
+    color: var(--ink-primary);
+  }
+  .num-head {
+    margin-bottom: 2rem;
+  }
+  .num-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 1rem;
+  }
+  .num-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  .num-phone {
+    font-family: 'JetBrains Mono';
+    font-weight: 500;
+    color: var(--ink-mono);
+  }
+  .num-verdict {
+    margin: 0 0 1.25rem;
+  }
+  .num-verdict-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    background: color-mix(in srgb, var(--signal-corroborated, #3f7c5a) 14%, var(--surface-raised));
+    color: var(--signal-corroborated, #3f7c5a);
+    border: 1px solid color-mix(in srgb, var(--signal-corroborated, #3f7c5a) 25%, transparent);
+    border-radius: 4px;
+  }
+  .num-verdict-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--signal-corroborated, #3f7c5a);
+  }
+  .num-lead {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--ink-primary);
+    margin: 0;
+    max-width: 64ch;
+  }
+  .num-lead strong {
+    font-weight: 600;
+  }
+  .num-campaign-link {
+    color: var(--accent-signal);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .num-facts {
+    margin: 0 0 2rem;
+  }
+  .num-facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--surface-raised);
+    overflow: hidden;
+    margin: 0;
+  }
+  .num-facts-grid > div {
+    padding: 1rem 1.125rem;
+    border-right: 1px solid var(--rule-subtle);
+  }
+  .num-facts-grid > div:last-child {
+    border-right: none;
+  }
+  .num-facts-grid dt {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-byline);
+    margin: 0 0 0.375rem;
+  }
+  .num-facts-grid dd {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+
+  .num-cta {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    margin: 0 0 2.5rem;
+  }
+  .num-cta h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    line-height: 1.1;
+    margin: 0 0 0.75rem;
+    color: var(--ink-primary);
+  }
+  .num-cta p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0 0 1.25rem;
+    max-width: 56ch;
+  }
+  .num-cta-btn {
+    display: inline-block;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    text-decoration: none;
+    transition: background 140ms ease-out;
+  }
+  .num-cta-btn:hover {
+    background: #2a2f3a;
+  }
+
+  .num-faq h2,
+  .num-related h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    color: var(--ink-primary);
+  }
+  .num-faq {
+    margin: 0 0 2.5rem;
+  }
+  .num-faq details {
+    border-top: 1px solid var(--rule-subtle);
+    padding: 0.875rem 0;
+  }
+  .num-faq details:last-of-type {
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  .num-faq summary {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--ink-primary);
+    cursor: pointer;
+    list-style: none;
+    padding-right: 1.5rem;
+    position: relative;
+  }
+  .num-faq summary::marker,
+  .num-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .num-faq summary::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: -0.1rem;
+    font-family: 'JetBrains Mono';
+    font-size: 1.25rem;
+    color: var(--ink-byline);
+  }
+  .num-faq details[open] summary::after {
+    content: '–';
+  }
+  .num-faq details p,
+  .num-faq details li {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    margin: 0.75rem 0 0;
+    max-width: 62ch;
+  }
+  .num-faq details ol {
+    margin: 0.5rem 0 0 1.25rem;
+    padding: 0;
+  }
+  .num-appeal-link {
+    color: var(--accent-signal);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  .num-related {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .num-related p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0;
+  }
+  .num-related a {
+    color: var(--accent-signal);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+</style>
