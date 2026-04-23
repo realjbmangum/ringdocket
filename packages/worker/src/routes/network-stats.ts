@@ -25,7 +25,8 @@ import { jsonError, jsonOk } from '../lib/responses';
 const TREND_DAYS = 30;
 const WEEK_DAYS = 7;
 const TOP_CAMPAIGNS_LIMIT = 5;
-const TREND_ROW_CAP = 20_000;
+const PAGE_SIZE = 1000; // PostgREST default cap per response
+const MAX_PAGES = 100; // safety — 100k rows ceiling per query
 
 export interface NetworkStatsResponse {
   totalCorroborated: number;
@@ -70,6 +71,34 @@ export async function handleNetworkStats(
   trendStartDate.setUTCDate(trendStartDate.getUTCDate() - (TREND_DAYS - 1));
   const trendStartIso = trendStartDate.toISOString();
 
+  // PostgREST caps each response at 1000 rows. The two row-level queries
+  // (trend, campaign_id) paginate via .range() until they read a short
+  // page. The four count/metadata queries parallelize cleanly above them.
+  async function paginate<T>(
+    build: () => ReturnType<typeof supabase.from>,
+    columns: string,
+    applyFilters: (
+      q: ReturnType<ReturnType<typeof supabase.from>['select']>,
+    ) => ReturnType<ReturnType<typeof supabase.from>['select']>,
+  ): Promise<{ data: T[]; error: { message: string } | null }> {
+    const all: T[] = [];
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const q = applyFilters(build().select(columns) as any).range(from, to);
+      const { data, error } = (await q) as {
+        data: T[] | null;
+        error: { message: string } | null;
+      };
+      if (error) return { data: [], error };
+      const rows = data ?? [];
+      all.push(...rows);
+      if (rows.length < PAGE_SIZE) break;
+    }
+    return { data: all, error: null };
+  }
+
   const [
     totalRes,
     activeCampaignsRes,
@@ -91,21 +120,26 @@ export async function handleNetworkStats(
       .select('id', { count: 'exact', head: true })
       .eq('current_state', 'corroborated')
       .gte('corroborated_at', weekStart),
-    supabase
-      .from('numbers')
-      .select('corroborated_at')
-      .eq('current_state', 'corroborated')
-      .gte('corroborated_at', trendStartIso)
-      .limit(TREND_ROW_CAP),
+    paginate<{ corroborated_at: string | null }>(
+      () => supabase.from('numbers'),
+      'corroborated_at',
+      (q) =>
+        q
+          .eq('current_state', 'corroborated')
+          .gte('corroborated_at', trendStartIso),
+    ),
     supabase
       .from('campaigns')
       .select('id, slug, name')
       .is('retired_at', null),
-    supabase
-      .from('numbers')
-      .select('campaign_id')
-      .eq('current_state', 'corroborated')
-      .not('campaign_id', 'is', null),
+    paginate<{ campaign_id: string | null }>(
+      () => supabase.from('numbers'),
+      'campaign_id',
+      (q) =>
+        q
+          .eq('current_state', 'corroborated')
+          .not('campaign_id', 'is', null),
+    ),
   ]);
 
   const firstErr =
