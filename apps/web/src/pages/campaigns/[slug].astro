@@ -1,0 +1,466 @@
+---
+import { createClient } from '@supabase/supabase-js';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const url = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined)?.trim();
+  const key = (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined)?.trim();
+  if (!url || !key) {
+    console.warn(
+      '[public campaigns] missing PUBLIC_SUPABASE_URL/KEY at build time',
+    );
+    return [];
+  }
+  const client = createClient(url, key, { auth: { persistSession: false } });
+
+  const { data: campaigns, error } = await client
+    .from('campaigns')
+    .select('id, slug, name, narrative_summary, active_since, retired_at');
+  if (error || !campaigns) {
+    console.warn('[public campaigns] fetch failed:', error?.message);
+    return [];
+  }
+
+  return await Promise.all(
+    (campaigns as Array<{
+      id: string;
+      slug: string;
+      name: string;
+      narrative_summary: string | null;
+      active_since: string | null;
+      retired_at: string | null;
+    }>).map(async (campaign) => {
+      const [topRes, countRes] = await Promise.all([
+        client
+          .from('numbers')
+          .select('phone, reputation_score, corroborated_at')
+          .eq('campaign_id', campaign.id)
+          .eq('current_state', 'corroborated')
+          .order('reputation_score', { ascending: false })
+          .order('corroborated_at', { ascending: false, nullsFirst: false })
+          .limit(20),
+        client
+          .from('numbers')
+          .select('id', { count: 'exact', head: true })
+          .eq('campaign_id', campaign.id)
+          .eq('current_state', 'corroborated'),
+      ]);
+
+      return {
+        params: { slug: campaign.slug },
+        props: {
+          campaign,
+          topNumbers: (topRes.data ?? []) as Array<{
+            phone: string;
+            reputation_score: number;
+            corroborated_at: string | null;
+          }>,
+          totalCount: countRes.count ?? 0,
+        },
+      };
+    }),
+  );
+}
+
+const { campaign, topNumbers, totalCount } = Astro.props as {
+  campaign: {
+    id: string;
+    slug: string;
+    name: string;
+    narrative_summary: string | null;
+    active_since: string | null;
+    retired_at: string | null;
+  };
+  topNumbers: Array<{
+    phone: string;
+    reputation_score: number;
+    corroborated_at: string | null;
+  }>;
+  totalCount: number;
+};
+
+function formatPhone(e164: string): string {
+  const digits = e164.replace(/^\+1/, '').replace(/\D/g, '');
+  if (digits.length !== 10) return e164;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+function formatActiveSince(iso: string | null): string {
+  if (!iso) return 'recent';
+  return new Date(iso).toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+const pageTitle = `${campaign.name} — ${totalCount.toLocaleString()} reported numbers | Ringdocket`;
+const pageDescription = campaign.narrative_summary
+  ? campaign.narrative_summary.slice(0, 155)
+  : `${campaign.name}: ${totalCount.toLocaleString()} corroborated scam numbers on the public block list.`;
+const canonicalUrl = `https://ringdocket.com/campaigns/${campaign.slug}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: campaign.name,
+  description: pageDescription,
+  datePublished: campaign.active_since ?? undefined,
+  dateModified: new Date().toISOString(),
+  author: {
+    '@type': 'Organization',
+    name: 'Ringdocket',
+    url: 'https://ringdocket.com',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Ringdocket',
+    url: 'https://ringdocket.com',
+  },
+  mainEntityOfPage: canonicalUrl,
+};
+---
+
+<Base title={pageTitle} description={pageDescription}>
+  <link rel="canonical" href={canonicalUrl} slot="head" />
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+
+  <main class="pub-main">
+    <nav class="pub-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Ringdocket</a>
+      <span aria-hidden="true">/</span>
+      <a href="/campaigns">Campaigns</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{campaign.name}</span>
+    </nav>
+
+    <header class="pub-head">
+      <p class="pub-kicker">Tracked scam campaign</p>
+      <h1 class="pub-h1">{campaign.name}</h1>
+      <p class="pub-byline">
+        {totalCount.toLocaleString()} corroborated {totalCount === 1 ? 'number' : 'numbers'} · Active since {formatActiveSince(campaign.active_since)}
+        {campaign.retired_at ? ` · Retired ${formatActiveSince(campaign.retired_at)}` : ''}
+      </p>
+
+      {campaign.narrative_summary && (
+        <p class="pub-narrative">{campaign.narrative_summary}</p>
+      )}
+    </header>
+
+    <section class="pub-cta-block">
+      <div class="pub-cta-copy">
+        <h2>Get these numbers blocked on your phone.</h2>
+        <p>
+          Ringdocket syncs the full block list — {totalCount.toLocaleString()} from this campaign plus 15,000+ others — to your phone overnight. Spammers never get through. The dashboard shows you exactly who they were.
+        </p>
+      </div>
+      <a href="https://app.ringdocket.com/login" class="pub-cta-btn">
+        Sign up free →
+      </a>
+    </section>
+
+    {topNumbers.length > 0 && (
+      <section class="pub-ledger">
+        <header class="pub-ledger-head">
+          <h2>Most-reported numbers in this campaign</h2>
+          <span class="pub-ledger-meta">
+            Top {topNumbers.length} of {totalCount.toLocaleString()}
+          </span>
+        </header>
+        <ol class="pub-ledger-rows">
+          {topNumbers.map((n) => (
+            <li class="pub-ledger-row">
+              <span class="pub-ledger-phone">{formatPhone(n.phone)}</span>
+              <span class="pub-ledger-count">
+                {Math.round(n.reputation_score).toLocaleString()} {n.reputation_score === 1 ? 'report' : 'reports'}
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p class="pub-ledger-foot">
+          Data sources: FTC National Do Not Call complaint feed + user
+          reports. Corroboration threshold: 3 distinct accounts / 14 days
+          (user reports), or 1 FTC complaint / 90 days.{' '}
+          <a href="/report-an-error">Challenge a listing →</a>
+        </p>
+      </section>
+    )}
+
+    <section class="pub-how">
+      <h2>How Ringdocket works</h2>
+      <ol class="pub-how-steps">
+        <li>
+          <strong>Install and grant Call Directory permission.</strong> Your phone consults our block list before ringing.
+        </li>
+        <li>
+          <strong>The list syncs nightly.</strong> Built from the FTC Do Not Call feed and corroborated user reports.
+        </li>
+        <li>
+          <strong>Listed numbers never ring.</strong> iOS silences them; you see them as missed calls if you care to look.
+        </li>
+      </ol>
+      <p class="pub-how-foot">
+        <a href="/" class="pub-how-link">Full how-it-works →</a>
+      </p>
+    </section>
+
+    <section class="pub-cta-block pub-cta-secondary">
+      <div class="pub-cta-copy">
+        <h2>Stop this ring at the source.</h2>
+        <p>
+          Every user report strengthens the public record. Three distinct corroborators, and a number joins the block list for everyone.
+        </p>
+      </div>
+      <a href="https://app.ringdocket.com/login" class="pub-cta-btn">
+        Start blocking →
+      </a>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .pub-main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .pub-breadcrumb {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+  }
+  .pub-breadcrumb a {
+    color: var(--ink-secondary);
+    text-decoration: none;
+  }
+  .pub-breadcrumb a:hover {
+    color: var(--ink-primary);
+  }
+  .pub-head {
+    margin-bottom: 2.5rem;
+  }
+  .pub-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 1rem;
+  }
+  .pub-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 0.875rem;
+  }
+  .pub-byline {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-byline);
+    margin: 0 0 1.5rem;
+  }
+  .pub-narrative {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--ink-primary);
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  .pub-cta-block {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    margin: 2.5rem 0;
+  }
+  @media (max-width: 640px) {
+    .pub-cta-block {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+  }
+  .pub-cta-secondary {
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--rule-subtle);
+    border-bottom: 1px solid var(--rule-subtle);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .pub-cta-copy h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0 0 0.5rem;
+    color: var(--ink-primary);
+  }
+  .pub-cta-copy p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    margin: 0;
+    max-width: 56ch;
+  }
+  .pub-cta-btn {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 140ms ease-out;
+  }
+  .pub-cta-btn:hover {
+    background: #2a2f3a;
+  }
+
+  .pub-ledger {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    margin-bottom: 2.5rem;
+  }
+  .pub-ledger-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pub-ledger-head h2 {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .pub-ledger-meta {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+  }
+  .pub-ledger-rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .pub-ledger-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--rule-subtle);
+    gap: 1rem;
+  }
+  .pub-ledger-row:last-child {
+    border-bottom: none;
+  }
+  .pub-ledger-phone {
+    font-family: 'JetBrains Mono';
+    font-size: 0.9375rem;
+    color: var(--ink-mono);
+  }
+  .pub-ledger-count {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--ink-byline);
+    white-space: nowrap;
+  }
+  .pub-ledger-foot {
+    font-family: 'Newsreader';
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--ink-byline);
+    margin: 1rem 0 0;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .pub-ledger-foot a {
+    color: var(--accent-signal);
+    text-decoration: none;
+  }
+  .pub-ledger-foot a:hover {
+    text-decoration: underline;
+  }
+
+  .pub-how {
+    margin-bottom: 2.5rem;
+  }
+  .pub-how h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0 0 1.25rem;
+    color: var(--ink-primary);
+  }
+  .pub-how-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    counter-reset: how;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .pub-how-steps li {
+    padding-left: 2.5rem;
+    position: relative;
+    counter-increment: how;
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+  }
+  .pub-how-steps li::before {
+    content: counter(how, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.15rem;
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+  }
+  .pub-how-steps strong {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-primary);
+  }
+  .pub-how-link {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--accent-signal);
+    text-decoration: none;
+  }
+  .pub-how-link:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -1,0 +1,316 @@
+---
+import { createClient } from '@supabase/supabase-js';
+import Base from '../../layouts/Base.astro';
+
+interface CampaignRow {
+  slug: string;
+  name: string;
+  narrative_summary: string | null;
+  active_since: string | null;
+  number_count: number;
+}
+
+const url = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined)?.trim();
+const key = (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined)?.trim();
+
+let campaigns: CampaignRow[] = [];
+let totalNumbers = 0;
+
+if (url && key) {
+  const client = createClient(url, key, { auth: { persistSession: false } });
+  const { data: raw } = await client
+    .from('campaigns')
+    .select('id, slug, name, narrative_summary, active_since')
+    .is('retired_at', null);
+
+  if (raw) {
+    const rows = await Promise.all(
+      (raw as Array<{
+        id: string;
+        slug: string;
+        name: string;
+        narrative_summary: string | null;
+        active_since: string | null;
+      }>).map(async (c) => {
+        const { count } = await client
+          .from('numbers')
+          .select('id', { count: 'exact', head: true })
+          .eq('campaign_id', c.id)
+          .eq('current_state', 'corroborated');
+        return {
+          slug: c.slug,
+          name: c.name,
+          narrative_summary: c.narrative_summary,
+          active_since: c.active_since,
+          number_count: count ?? 0,
+        };
+      }),
+    );
+    campaigns = rows
+      .filter((r) => r.number_count > 0)
+      .sort((a, b) => b.number_count - a.number_count);
+    totalNumbers = rows.reduce((sum, r) => sum + r.number_count, 0);
+  }
+}
+
+const pageTitle = `Tracked scam campaigns — ${totalNumbers.toLocaleString()} reported numbers | Ringdocket`;
+const pageDescription = `Ringdocket tracks ${campaigns.length} active scam-call campaigns with ${totalNumbers.toLocaleString()} corroborated numbers. Debt relief, impersonation, medical, and more.`;
+const canonicalUrl = 'https://ringdocket.com/campaigns';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  headline: 'Tracked scam campaigns',
+  description: pageDescription,
+  url: canonicalUrl,
+  publisher: {
+    '@type': 'Organization',
+    name: 'Ringdocket',
+    url: 'https://ringdocket.com',
+  },
+};
+---
+
+<Base title={pageTitle} description={pageDescription}>
+  <link rel="canonical" href={canonicalUrl} slot="head" />
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+
+  <main class="pub-main">
+    <nav class="pub-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Ringdocket</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">Campaigns</span>
+    </nav>
+
+    <header class="pub-head">
+      <p class="pub-kicker">Campaigns</p>
+      <h1 class="pub-h1">
+        Every call has a campaign behind it.
+      </h1>
+      <p class="pub-narrative">
+        Scam operations leave patterns — same scripts, same targets, same dialer infrastructure. Ringdocket tracks{' '}
+        <strong>{campaigns.length}</strong> of them, with{' '}
+        <strong>{totalNumbers.toLocaleString()}</strong> corroborated numbers on the public block list.
+      </p>
+    </header>
+
+    <section class="pub-cta-block">
+      <div class="pub-cta-copy">
+        <h2>Get the whole list synced to your phone.</h2>
+        <p>
+          Ringdocket Free blocks every number on the public record. The dashboard shows you who they were.
+        </p>
+      </div>
+      <a href="https://app.ringdocket.com/login" class="pub-cta-btn">
+        Sign up free →
+      </a>
+    </section>
+
+    <ol class="pub-campaign-list">
+      {campaigns.map((c) => (
+        <li class="pub-campaign-card">
+          <a href={`/campaigns/${c.slug}`} class="pub-campaign-link">
+            <div class="pub-campaign-head">
+              <h2>{c.name}</h2>
+              <span class="pub-campaign-count">
+                <span class="pub-campaign-count-num">{c.number_count.toLocaleString()}</span>
+                <span class="pub-campaign-count-label">numbers</span>
+              </span>
+            </div>
+            {c.narrative_summary && (
+              <p class="pub-campaign-summary">{c.narrative_summary}</p>
+            )}
+            <div class="pub-campaign-meta">
+              <span>View campaign →</span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </main>
+</Base>
+
+<style>
+  .pub-main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .pub-breadcrumb {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.75rem;
+  }
+  .pub-breadcrumb a {
+    color: var(--ink-secondary);
+    text-decoration: none;
+  }
+  .pub-breadcrumb a:hover {
+    color: var(--ink-primary);
+  }
+  .pub-head {
+    margin-bottom: 2.5rem;
+  }
+  .pub-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 1rem;
+  }
+  .pub-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  .pub-narrative {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--ink-primary);
+    margin: 0;
+    max-width: 68ch;
+  }
+  .pub-narrative strong {
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+
+  .pub-cta-block {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: center;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    margin: 2.5rem 0;
+  }
+  @media (max-width: 640px) {
+    .pub-cta-block {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+  }
+  .pub-cta-copy h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin: 0 0 0.5rem;
+    color: var(--ink-primary);
+  }
+  .pub-cta-copy p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+    margin: 0;
+    max-width: 56ch;
+  }
+  .pub-cta-btn {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 140ms ease-out;
+  }
+  .pub-cta-btn:hover {
+    background: #2a2f3a;
+  }
+
+  .pub-campaign-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .pub-campaign-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    transition: border-color 140ms ease-out;
+  }
+  .pub-campaign-card:hover {
+    border-color: var(--ink-secondary);
+  }
+  .pub-campaign-link {
+    display: block;
+    padding: 1.375rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .pub-campaign-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.625rem;
+  }
+  .pub-campaign-head h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink-primary);
+  }
+  .pub-campaign-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono';
+  }
+  .pub-campaign-count-num {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--ink-primary);
+  }
+  .pub-campaign-count-label {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .pub-campaign-summary {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    margin: 0 0 0.875rem;
+    max-width: 72ch;
+  }
+  .pub-campaign-meta {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--ink-secondary);
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .pub-campaign-card:hover .pub-campaign-meta {
+    color: var(--accent-signal);
+  }
+</style>
