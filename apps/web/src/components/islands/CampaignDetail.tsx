@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getBrowserSupabase } from '../../lib/supabase';
 import { formatPhone, relativeTime } from '../../lib/format';
 
@@ -25,6 +25,8 @@ interface NumberRow {
   current_state: string;
 }
 
+type SortKey = 'reports' | 'recent' | 'oldest';
+
 type State =
   | { kind: 'loading' }
   | { kind: 'error'; message: string }
@@ -32,8 +34,6 @@ type State =
   | {
       kind: 'ready';
       campaign: CampaignRecord;
-      numbers: NumberRow[];
-      totalCount: number;
     };
 
 const LEDGER_PAGE = 25;
@@ -52,9 +52,45 @@ function formatActiveRange(active: string | null, retired: string | null) {
   return `${a} – ${r}`;
 }
 
+function applySort(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  query: any,
+  sort: SortKey,
+) {
+  if (sort === 'reports') {
+    return query
+      .order('reputation_score', { ascending: false })
+      .order('corroborated_at', { ascending: false, nullsFirst: false });
+  }
+  if (sort === 'recent') {
+    return query.order('corroborated_at', {
+      ascending: false,
+      nullsFirst: false,
+    });
+  }
+  return query.order('corroborated_at', { ascending: true });
+}
+
 export default function CampaignDetail({ slug }: Props) {
   const [state, setState] = useState<State>({ kind: 'loading' });
+  const [numbers, setNumbers] = useState<NumberRow[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filteredCount, setFilteredCount] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
 
+  const [searchInput, setSearchInput] = useState('');
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<SortKey>('reports');
+
+  // Debounce search input -> query
+  useEffect(() => {
+    const t = setTimeout(() => setQuery(searchInput.trim()), 250);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  // Load the campaign row once per slug
   useEffect(() => {
     const supabase = getBrowserSupabase();
     let active = true;
@@ -78,40 +114,89 @@ export default function CampaignDetail({ slug }: Props) {
         return;
       }
 
-      const [numbersRes, countRes] = await Promise.all([
-        supabase
-          .from('numbers')
-          .select('phone, reputation_score, corroborated_at, current_state')
-          .eq('campaign_id', (campaign as CampaignRecord).id)
-          .eq('current_state', 'corroborated')
-          .order('reputation_score', { ascending: false })
-          .order('corroborated_at', { ascending: false, nullsFirst: false })
-          .limit(LEDGER_PAGE),
-        supabase
-          .from('numbers')
-          .select('id', { count: 'exact', head: true })
-          .eq('campaign_id', (campaign as CampaignRecord).id)
-          .eq('current_state', 'corroborated'),
-      ]);
+      // Fetch the unfiltered total once (for the header chip).
+      const totalRes = await supabase
+        .from('numbers')
+        .select('id', { count: 'exact', head: true })
+        .eq('campaign_id', (campaign as CampaignRecord).id)
+        .eq('current_state', 'corroborated');
 
       if (!active) return;
-      if (numbersRes.error) {
-        setState({ kind: 'error', message: numbersRes.error.message });
-        return;
-      }
 
-      setState({
-        kind: 'ready',
-        campaign: campaign as CampaignRecord,
-        numbers: (numbersRes.data ?? []) as NumberRow[],
-        totalCount: countRes.count ?? 0,
-      });
+      setTotalCount(totalRes.count ?? 0);
+      setState({ kind: 'ready', campaign: campaign as CampaignRecord });
     })();
 
     return () => {
       active = false;
     };
   }, [slug]);
+
+  // Reload the ledger page 0 whenever query or sort changes.
+  const reqIdRef = useRef(0);
+  useEffect(() => {
+    if (state.kind !== 'ready') return;
+    const supabase = getBrowserSupabase();
+    const reqId = ++reqIdRef.current;
+    setSearching(true);
+    setListError(null);
+
+    (async () => {
+      let q = supabase
+        .from('numbers')
+        .select('phone, reputation_score, corroborated_at, current_state', {
+          count: 'exact',
+        })
+        .eq('campaign_id', state.campaign.id)
+        .eq('current_state', 'corroborated');
+
+      if (query) {
+        q = q.like('phone', `%${query}%`);
+      }
+
+      q = applySort(q, sort).range(0, LEDGER_PAGE - 1);
+
+      const res = await q;
+      if (reqId !== reqIdRef.current) return; // stale
+      if (res.error) {
+        setListError(res.error.message);
+        setNumbers([]);
+        setFilteredCount(0);
+      } else {
+        setNumbers((res.data ?? []) as NumberRow[]);
+        setFilteredCount(res.count ?? 0);
+      }
+      setSearching(false);
+    })();
+  }, [state, query, sort]);
+
+  async function loadMore() {
+    if (state.kind !== 'ready' || loadingMore) return;
+    const supabase = getBrowserSupabase();
+    setLoadingMore(true);
+    setListError(null);
+
+    const offset = numbers.length;
+    let q = supabase
+      .from('numbers')
+      .select('phone, reputation_score, corroborated_at, current_state')
+      .eq('campaign_id', state.campaign.id)
+      .eq('current_state', 'corroborated');
+
+    if (query) {
+      q = q.like('phone', `%${query}%`);
+    }
+
+    q = applySort(q, sort).range(offset, offset + LEDGER_PAGE - 1);
+
+    const res = await q;
+    if (res.error) {
+      setListError(res.error.message);
+    } else if (res.data && res.data.length > 0) {
+      setNumbers((prev) => [...prev, ...(res.data as NumberRow[])]);
+    }
+    setLoadingMore(false);
+  }
 
   if (state.kind === 'loading') {
     return (
@@ -144,7 +229,22 @@ export default function CampaignDetail({ slug }: Props) {
     );
   }
 
-  const { campaign, numbers, totalCount } = state;
+  const { campaign } = state;
+  const shown = numbers.length;
+  const hasMore = shown < filteredCount;
+  const isFiltered = query.length > 0;
+
+  let countLabel: string;
+  if (searching && numbers.length === 0) {
+    countLabel = 'searching…';
+  } else if (filteredCount === 0) {
+    countLabel = isFiltered ? 'no matches' : '0 rows';
+  } else if (shown === filteredCount) {
+    countLabel = `${shown.toLocaleString()} of ${filteredCount.toLocaleString()}`;
+  } else {
+    countLabel = `showing 1–${shown.toLocaleString()} of ${filteredCount.toLocaleString()}`;
+  }
+  if (isFiltered) countLabel += ` · filtered from ${totalCount.toLocaleString()}`;
 
   return (
     <article className="campaign-article">
@@ -194,36 +294,88 @@ export default function CampaignDetail({ slug }: Props) {
       <section className="campaign-ledger-section">
         <header className="campaign-ledger-head">
           <h2 className="campaign-ledger-title">Evidence ledger</h2>
-          <span className="campaign-ledger-count">
-            {totalCount.toLocaleString()}{' '}
-            {totalCount === 1 ? 'row' : 'rows'}
-            {totalCount > LEDGER_PAGE ? ` · top ${LEDGER_PAGE} shown` : ''}
-          </span>
+          <span className="campaign-ledger-count">{countLabel}</span>
         </header>
 
-        {numbers.length === 0 ? (
+        <div className="campaign-ledger-controls">
+          <label className="campaign-ledger-search">
+            <span className="visually-hidden">Search numbers</span>
+            <input
+              type="search"
+              inputMode="tel"
+              placeholder="Search by digits (e.g. 803 or 5551212)"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
+          <label className="campaign-ledger-sort">
+            <span className="visually-hidden">Sort by</span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+            >
+              <option value="reports">Most reports</option>
+              <option value="recent">Most recent</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </label>
+        </div>
+
+        {listError && (
+          <p className="campaign-error" role="alert">
+            {listError}
+          </p>
+        )}
+
+        {numbers.length === 0 && !searching ? (
           <p className="campaign-ledger-empty">
-            No corroborated numbers linked to this campaign yet.
+            {isFiltered
+              ? 'No numbers match that search.'
+              : 'No corroborated numbers linked to this campaign yet.'}
           </p>
         ) : (
-          <ol className="campaign-ledger">
-            {numbers.map((n) => (
-              <li key={n.phone} className="campaign-ledger-row">
-                <span className="campaign-ledger-phone">
-                  {formatPhone(n.phone)}
-                </span>
-                <span className="campaign-ledger-meta">
-                  {relativeTime(n.corroborated_at)}
-                </span>
-                <span className="campaign-ledger-score">
-                  {Math.round(n.reputation_score)}{' '}
-                  <span className="score-label">
-                    {n.reputation_score === 1 ? 'report' : 'reports'}
+          <>
+            <ol
+              className="campaign-ledger"
+              aria-busy={searching ? 'true' : 'false'}
+            >
+              {numbers.map((n) => (
+                <li key={n.phone} className="campaign-ledger-row">
+                  <span className="campaign-ledger-phone">
+                    {formatPhone(n.phone)}
                   </span>
-                </span>
-              </li>
-            ))}
-          </ol>
+                  <span className="campaign-ledger-meta">
+                    {relativeTime(n.corroborated_at)}
+                  </span>
+                  <span className="campaign-ledger-score">
+                    {Math.round(n.reputation_score)}{' '}
+                    <span className="score-label">
+                      {n.reputation_score === 1 ? 'report' : 'reports'}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            {hasMore && (
+              <div className="campaign-ledger-more">
+                <button
+                  type="button"
+                  className="campaign-ledger-more-btn"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore
+                    ? 'Loading…'
+                    : `Load ${Math.min(
+                        LEDGER_PAGE,
+                        filteredCount - shown,
+                      ).toLocaleString()} more`}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 

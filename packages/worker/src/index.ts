@@ -23,6 +23,7 @@ import type { Env } from './types';
 import { handleReport } from './routes/report';
 import { handleDelistAppeal } from './routes/delist-appeal';
 import { handleMyPendingReports } from './routes/my-pending-reports';
+import { handleNetworkStats } from './routes/network-stats';
 import { handleSimulateCorroboration } from './routes/simulate-corroboration';
 import {
   handleTriggerFtcIngestion,
@@ -85,6 +86,22 @@ export default {
         return await handleMyPendingReports(request, env);
       } catch (err) {
         console.error('handleMyPendingReports unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
+      }
+    }
+
+    // GET /api/network-stats — public, no auth
+    if (url.pathname === '/api/network-stats') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'GET, OPTIONS' },
+        });
+      }
+      try {
+        return await handleNetworkStats(request, env);
+      } catch (err) {
+        console.error('handleNetworkStats unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
     }

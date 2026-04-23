@@ -1,6 +1,7 @@
 ---
 import AppLayout from '../../layouts/AppLayout.astro';
 import MyImpactTimeline from '../../components/islands/MyImpactTimeline.tsx';
+import MyImpactAnalytics from '../../components/islands/MyImpactAnalytics.tsx';
 ---
 
 <AppLayout title="My Impact — Ringdocket">
@@ -15,6 +16,7 @@ import MyImpactTimeline from '../../components/islands/MyImpactTimeline.tsx';
         and first-flag credit. The record speaks for itself.
       </p>
     </header>
+    <MyImpactAnalytics client:load />
     <MyImpactTimeline client:load />
   </div>
 </AppLayout>
@@ -266,4 +268,129 @@ import MyImpactTimeline from '../../components/islands/MyImpactTimeline.tsx';
     50% { opacity: 1; }
   }
   .impact-error { color: #b1271b; }
+
+  /* Analytics section */
+  .impact-analytics {
+    display: grid;
+    gap: 1rem;
+    margin: 0 0 1.75rem;
+  }
+  .impact-analytics-card {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--surface-raised);
+    padding: 1.125rem 1.25rem 1rem;
+  }
+  .impact-analytics-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 0 0 0.875rem;
+  }
+  .impact-analytics-title {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .impact-analytics-meta {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+  }
+
+  /* Weekly bar chart */
+  .impact-analytics-chart-wrap {
+    width: 100%;
+  }
+  .impact-analytics-chart {
+    display: block;
+    width: 100%;
+    height: 120px;
+    overflow: visible;
+  }
+  .impact-analytics-bar {
+    fill: var(--ink-primary);
+    opacity: 0.82;
+  }
+  .impact-analytics-bar:hover {
+    opacity: 1;
+  }
+  .impact-analytics-bar-empty {
+    fill: var(--ink-byline);
+    opacity: 0.35;
+  }
+  .impact-analytics-baseline {
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+  .impact-analytics-xlabel {
+    font-family: 'JetBrains Mono';
+    font-size: 10px;
+    fill: var(--ink-byline);
+  }
+
+  /* Category list */
+  .impact-analytics-cats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.625rem;
+  }
+  .impact-analytics-cat {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) minmax(0, 2.4fr) auto;
+    align-items: center;
+    gap: 0.875rem;
+  }
+  .impact-analytics-cat-name {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    color: var(--ink-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .impact-analytics-cat-bar {
+    height: 8px;
+    background: var(--surface-inset);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .impact-analytics-cat-bar-fill {
+    height: 100%;
+    background: var(--ink-secondary, var(--ink-primary));
+    opacity: 0.78;
+    transition: width 240ms ease-out;
+  }
+  .impact-analytics-cat-count {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--ink-mono, var(--ink-primary));
+    min-width: 2ch;
+    text-align: right;
+  }
+
+  /* Skeleton */
+  .impact-analytics-skel {
+    display: grid;
+    gap: 1rem;
+    margin: 0 0 1.75rem;
+  }
+  .impact-analytics-skel-card {
+    height: 150px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: linear-gradient(
+      90deg,
+      var(--surface-inset) 0%,
+      color-mix(in srgb, var(--surface-inset) 60%, var(--surface-raised)) 50%,
+      var(--surface-inset) 100%
+    );
+    animation: rd-skel 1.4s ease-in-out infinite;
+  }
 </style>
