@@ -1,28 +1,30 @@
 ---
+import { createClient } from '@supabase/supabase-js';
 import AppLayout from '../../../layouts/AppLayout.astro';
 import CampaignDetail from '../../../components/islands/CampaignDetail.tsx';
 
-export function getStaticPaths() {
-  // Hardcoded slugs matching migration 008 seed. Keep in sync when adding
-  // campaigns. Astro hoists getStaticPaths in isolation, so this list must
-  // live inside the function rather than at module scope. Build-time
-  // Supabase query would need the service role key, which isn't available
-  // at build time on Cloudflare Pages.
-  const slugs = [
-    'medicare-card-renewal-ring',
-    'auto-warranty-extension',
-    'irs-impersonation',
-    'social-security-suspension',
-    'utility-shutoff-scam',
-    'tech-support-scam',
-    'extended-warranty',
-    'solar-energy-savings',
-    'debt-relief-credit-repair',
-    'home-improvement-canvassing',
-    'bank-account-fraud',
-    'political-robocall',
-  ];
-  return slugs.map((slug) => ({ params: { slug } }));
+export async function getStaticPaths() {
+  // Fetch slugs from Supabase at build time using the anon key (campaigns
+  // table is public-read via RLS, so the anon key is sufficient). Avoids
+  // the maintenance cost of a hardcoded slug list drifting from the DB.
+  // Anon key is available as a PUBLIC_ env var on Cloudflare Pages builds.
+  const url = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined)?.trim();
+  const key = (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined)?.trim();
+  if (!url || !key) {
+    console.warn(
+      '[campaigns/[slug]] PUBLIC_SUPABASE_URL or PUBLIC_SUPABASE_ANON_KEY missing at build time — no campaign pages will be generated.',
+    );
+    return [];
+  }
+  const client = createClient(url, key, { auth: { persistSession: false } });
+  const { data, error } = await client.from('campaigns').select('slug');
+  if (error) {
+    console.warn('[campaigns/[slug]] campaigns query failed:', error.message);
+    return [];
+  }
+  return (data ?? []).map((row: { slug: string }) => ({
+    params: { slug: row.slug },
+  }));
 }
 
 const { slug } = Astro.params;
