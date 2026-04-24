@@ -1,0 +1,30 @@
+# XcodeGen-generated — regenerate with `xcodegen generate`
+*.xcodeproj
+*.xcworkspace
+
+# Build outputs
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# User-specific Xcode state
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+
+# CocoaPods (if added later)
+Pods/
+
+# fastlane (if added later)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# macOS
+.DS_Store

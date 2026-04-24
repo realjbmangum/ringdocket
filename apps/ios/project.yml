@@ -1,0 +1,72 @@
+# Ringdocket iOS — XcodeGen project spec.
+#
+# Run `xcodegen generate` from this directory to (re)generate
+# Ringdocket.xcodeproj from this YAML. The .xcodeproj is gitignored so
+# this file is the source of truth for project structure.
+#
+# Two targets:
+#   - Ringdocket             (the iOS app)
+#   - RingdocketBlockList    (Call Directory Extension that installs the
+#                              block list into iOS's call screen)
+#
+# Both targets share an App Group container so the app can write the
+# downloaded block list and the extension can read it.
+#
+# Bundle IDs use the prefix `com.lighthouse27.ringdocket` to match
+# Brian's LIGHTHOUSE 27 LLC entity. Change `bundleIdPrefix` below if
+# you sign under a different team.
+
+name: Ringdocket
+options:
+  bundleIdPrefix: com.lighthouse27
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    GENERATE_INFOPLIST_FILE: YES
+    DEVELOPMENT_TEAM: "" # fill in via Xcode "Signing & Capabilities" — leave blank here
+
+targets:
+  Ringdocket:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Ringdocket
+    resources:
+      - path: Ringdocket/Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lighthouse27.ringdocket
+        PRODUCT_NAME: Ringdocket
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_CFBundleDisplayName: Ringdocket
+        ENABLE_PREVIEWS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: Ringdocket/Ringdocket.entitlements
+    dependencies:
+      - target: RingdocketBlockList
+
+  RingdocketBlockList:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: RingdocketBlockList
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lighthouse27.ringdocket.blocklist
+        PRODUCT_NAME: RingdocketBlockList
+        INFOPLIST_FILE: RingdocketBlockList/Info.plist
+        CODE_SIGN_ENTITLEMENTS: RingdocketBlockList/RingdocketBlockList.entitlements
+        SKIP_INSTALL: YES
