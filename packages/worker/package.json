@@ -14,7 +14,8 @@
   "dependencies": {
     "@ringdocket/shared": "*",
     "@supabase/supabase-js": "^2.45.0",
-    "hono": "^4.6.0"
+    "hono": "^4.6.0",
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.0",

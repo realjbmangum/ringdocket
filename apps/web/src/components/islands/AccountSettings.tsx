@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getBrowserSupabase } from '../../lib/supabase';
 
+const WORKER_URL = ((import.meta.env.PUBLIC_WORKER_URL as string) ?? '')
+  .trim()
+  .replace(/\/+$/, '');
+
 interface UserRow {
   id: string;
   email: string | null;
@@ -31,6 +35,56 @@ type State =
       user: UserRow;
       subscription: Subscription | null;
     };
+
+function BillingPortalLink() {
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const handleClick = async () => {
+    setLoading(true);
+    setErr(null);
+    const supabase = getBrowserSupabase();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      setLoading(false);
+      setErr('Not signed in.');
+      return;
+    }
+    try {
+      const res = await fetch(`${WORKER_URL}/api/billing-portal`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setErr(body?.error ?? `Couldn't open portal (HTTP ${res.status}).`);
+        setLoading(false);
+        return;
+      }
+      const data = (await res.json()) as { url: string };
+      window.location.href = data.url;
+    } catch (e) {
+      setLoading(false);
+      setErr(e instanceof Error ? e.message : 'Network error');
+    }
+  };
+
+  return (
+    <div className="settings-billing-wrap">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="settings-billing-link"
+      >
+        {loading ? 'Opening…' : 'Manage billing →'}
+      </button>
+      {err && <span className="settings-billing-err">{err}</span>}
+    </div>
+  );
+}
 
 const PREF_LABELS: Array<{ key: keyof EmailPrefs; title: string; body: string }> = [
   {
@@ -165,7 +219,16 @@ export default function AccountSettings() {
   return (
     <>
       <section className="settings-section">
-        <h2 className="settings-section-title">Account</h2>
+        <div className="settings-section-head">
+          <h2 className="settings-section-title">Account</h2>
+          {tier === 'free' ? (
+            <a href="/pricing" className="settings-billing-link">
+              Upgrade →
+            </a>
+          ) : (
+            <BillingPortalLink />
+          )}
+        </div>
         <dl className="settings-kv">
           <div>
             <dt>Email</dt>

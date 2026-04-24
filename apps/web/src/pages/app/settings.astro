@@ -191,6 +191,36 @@ import AccountSettings from '../../components/islands/AccountSettings.tsx';
     text-decoration: underline;
   }
 
+  .settings-billing-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+  .settings-billing-link {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--accent-signal);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  .settings-billing-link:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+  .settings-billing-link:disabled {
+    opacity: 0.55;
+    cursor: progress;
+  }
+  .settings-billing-err {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: #b1271b;
+  }
+
   .settings-skel-row {
     height: 80px;
     background: linear-gradient(

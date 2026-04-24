@@ -21,6 +21,9 @@ export interface Env {
   SUPABASE_SERVICE_ROLE_KEY: string;
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_FULL_MONTHLY_PRICE_ID?: string;
+  STRIPE_FULL_YEARLY_PRICE_ID?: string;
+  STRIPE_FOUNDING_PRICE_ID?: string;
   REVENUECAT_WEBHOOK_SECRET?: string;
   SENDGRID_API_KEY?: string;
   FTC_API_KEY?: string;

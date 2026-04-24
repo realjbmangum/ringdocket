@@ -1,0 +1,512 @@
+---
+import { createClient } from '@supabase/supabase-js';
+import Base from '../layouts/Base.astro';
+import PricingCTA from '../components/islands/PricingCTA.tsx';
+
+const fullMonthlyPrice = (import.meta.env.PUBLIC_STRIPE_PRICE_FULL_MONTHLY as string | undefined) ?? '';
+const fullYearlyPrice = (import.meta.env.PUBLIC_STRIPE_PRICE_FULL_YEARLY as string | undefined) ?? '';
+const foundingPrice = (import.meta.env.PUBLIC_STRIPE_PRICE_FOUNDING as string | undefined) ?? '';
+
+// Founding Flagger counter — read the single row in founding_flagger_counter
+// at build time. Refreshed on each rebuild, which is fine for marketing.
+const url = (import.meta.env.PUBLIC_SUPABASE_URL as string | undefined)?.trim();
+const key = (import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined)?.trim();
+let founding = { claimed: 0, cap: 500 };
+if (url && key) {
+  const client = createClient(url, key, { auth: { persistSession: false } });
+  const { data } = await client
+    .from('founding_flagger_counter')
+    .select('claimed, cap')
+    .eq('id', 1)
+    .maybeSingle();
+  if (data) {
+    founding = data as { claimed: number; cap: number };
+  }
+}
+
+const foundingPct = founding.cap > 0 ? Math.min((founding.claimed / founding.cap) * 100, 100) : 0;
+const foundingSoldOut = founding.claimed >= founding.cap;
+
+const pageTitle = 'Pricing — Ringdocket';
+const pageDescription = 'Ringdocket Free is free forever. Ringdocket Full is $3.99/mo or $29.99/yr. The first 500 annual subscribers lock in Founding Flagger at $19.99/yr for the life of their account.';
+---
+
+<Base title={pageTitle} description={pageDescription}>
+  <main class="price-main">
+    <header class="price-head">
+      <p class="price-kicker">Pricing</p>
+      <h1 class="price-h1">
+        One price. <em>No upsells.</em>
+      </h1>
+      <p class="price-lead">
+        Blocking is free forever. Pay only if you want the transparency
+        dashboard, gamified reporting credit, and the quarterly Takedown
+        Report. One paid tier. No ladder.
+      </p>
+    </header>
+
+    <div class="price-grid">
+      <!-- FREE -->
+      <div class="price-plan">
+        <h2 class="price-plan-name">Free</h2>
+        <div class="price-plan-cost">
+          <span class="price-plan-num">$0</span>
+          <span class="price-plan-per">forever</span>
+        </div>
+        <p class="price-plan-annual">no card required</p>
+        <ul class="price-plan-features">
+          <li>Unlimited call blocking</li>
+          <li>5 reports per month</li>
+          <li>Home-screen stats</li>
+          <li>Full web dashboard access</li>
+          <li>Network Ledger + campaign pages</li>
+        </ul>
+        <a href="https://app.ringdocket.com/login" class="price-free-cta">
+          Sign up free →
+        </a>
+      </div>
+
+      <!-- FULL -->
+      <div class="price-plan price-plan-featured">
+        <span class="price-plan-badge">Most common</span>
+        <h2 class="price-plan-name">Ringdocket Full</h2>
+        <div class="price-plan-cost">
+          <span class="price-plan-num">$3.99</span>
+          <span class="price-plan-per">/month</span>
+        </div>
+        <p class="price-plan-annual">
+          or <strong>$29.99/yr</strong> — save 37%
+        </p>
+        <ul class="price-plan-features">
+          <li>Everything in Free</li>
+          <li>Unlimited reports + priority weighting</li>
+          <li>Full transparency dashboard</li>
+          <li>Weekly digest + monthly impact email</li>
+          <li>Quarterly Takedown Report (shareable PDF)</li>
+          <li>All badges &amp; first-flag credit</li>
+        </ul>
+        <PricingCTA
+          client:load
+          priceId={fullMonthlyPrice}
+          label="Start monthly — $3.99/mo"
+          variant="primary"
+        />
+        <PricingCTA
+          client:load
+          priceId={fullYearlyPrice}
+          label="Start yearly — $29.99/yr"
+          variant="secondary"
+        />
+      </div>
+    </div>
+
+    <!-- FOUNDING FLAGGER -->
+    <section class="founding">
+      <p class="founding-stamp">
+        Founding Flagger · limited to 500
+      </p>
+      <h2 class="founding-h2">
+        Lock your annual rate forever. <em>Once we hit 500, it's gone.</em>
+      </h2>
+      <p class="founding-copy">
+        The first 500 annual subscribers get Ringdocket Full at{' '}
+        <strong>$19.99/year</strong> — a third off list price, locked for the
+        life of your account. You'll also carry the permanent Founding
+        Flagger badge on your profile and in every Takedown Report you cite.
+        Never reopens.
+      </p>
+      <div class="founding-progress" aria-label="Founding Flagger progress">
+        <div class="founding-progress-bar" style={`width: ${foundingPct}%`}></div>
+      </div>
+      <p class="founding-counter">
+        {founding.claimed} / {founding.cap} claimed · {founding.cap - founding.claimed} remaining
+      </p>
+      {foundingSoldOut ? (
+        <p class="founding-closed">
+          Founding Flagger has reached its cap. Thanks to the first 500.
+        </p>
+      ) : (
+        <PricingCTA
+          client:load
+          priceId={foundingPrice}
+          label="Claim Founding Flagger — $19.99/yr"
+          variant="primary"
+        />
+      )}
+    </section>
+
+    <section class="price-faq">
+      <h2>Common questions</h2>
+      <details>
+        <summary>Can I cancel?</summary>
+        <p>
+          Anytime from your billing portal. You keep the paid tier until the
+          end of your current period, then drop to Free. Your flags stay on
+          the public record — they're not retroactively removed.
+        </p>
+      </details>
+      <details>
+        <summary>What payment methods?</summary>
+        <p>
+          Major credit/debit cards, plus Apple Pay, Google Pay, Link, and
+          Cash App Pay where available — anything Stripe supports.
+        </p>
+      </details>
+      <details>
+        <summary>Refunds?</summary>
+        <p>
+          Email <a href="mailto:refunds@ringdocket.com">refunds@ringdocket.com</a>{' '}
+          within 14 days of a charge for a full refund, no questions asked.
+        </p>
+      </details>
+      <details>
+        <summary>How do I switch between monthly and yearly?</summary>
+        <p>
+          Billing portal handles it. Prorated automatically.
+        </p>
+      </details>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .price-main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .price-head {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .price-kicker {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  .price-h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  .price-h1 em {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .price-lead {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 54ch;
+    margin: 0 auto;
+  }
+
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin: 0 0 3rem;
+  }
+  @media (max-width: 760px) {
+    .price-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .price-plan {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: clamp(1.5rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+  }
+  .price-plan-featured {
+    border-color: var(--ink-primary);
+  }
+  .price-plan-badge {
+    position: absolute;
+    top: -0.6rem;
+    left: 1.25rem;
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+  }
+  .price-plan-name {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 0;
+    color: var(--ink-primary);
+  }
+  .price-plan-cost {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+  }
+  .price-plan-num {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 800;
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+  }
+  .price-plan-per {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--ink-byline);
+  }
+  .price-plan-annual {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin: 0;
+  }
+  .price-plan-annual strong {
+    color: var(--ink-primary);
+  }
+  .price-plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+  }
+  .price-plan-features li {
+    padding: 0.375rem 0;
+    border-bottom: 1px dotted var(--rule-subtle);
+  }
+  .price-plan-features li:last-child {
+    border-bottom: none;
+  }
+  .price-plan-features li::before {
+    content: '—';
+    color: var(--ink-byline);
+    margin-right: 0.5em;
+    font-family: 'JetBrains Mono';
+  }
+  .price-free-cta {
+    align-self: flex-start;
+    margin-top: auto;
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink-primary);
+    text-decoration: none;
+    border: 1px solid var(--rule);
+    transition: border-color 140ms ease-out, background 140ms ease-out;
+  }
+  .price-free-cta:hover {
+    border-color: var(--ink-primary);
+    background: var(--surface-inset);
+  }
+
+  :global(.pricing-cta-wrap) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  :global(.pricing-cta) {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: background 140ms ease-out, border-color 140ms ease-out, color 140ms ease-out;
+  }
+  :global(.pricing-cta-primary) {
+    background: var(--ink-primary);
+    color: var(--surface-paper);
+  }
+  :global(.pricing-cta-primary:hover:not(:disabled)) {
+    background: #2a2f3a;
+  }
+  :global(.pricing-cta-secondary) {
+    background: transparent;
+    color: var(--ink-primary);
+    border-color: var(--rule);
+  }
+  :global(.pricing-cta-secondary:hover:not(:disabled)) {
+    border-color: var(--ink-primary);
+    background: var(--surface-inset);
+  }
+  :global(.pricing-cta:disabled) {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  :global(.pricing-cta-error) {
+    font-family: 'Newsreader';
+    font-size: 0.8125rem;
+    color: #b1271b;
+    margin: 0;
+  }
+
+  .founding {
+    background: var(--surface-raised);
+    border: 1px solid var(--accent-signal);
+    border-radius: 10px;
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .founding::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--accent-signal) 10%, transparent),
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+  .founding-stamp {
+    font-family: 'JetBrains Mono';
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .founding-stamp::before {
+    content: '●';
+    font-size: 0.7em;
+  }
+  .founding-h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.05;
+    margin: 0 0 1rem;
+    color: var(--ink-primary);
+  }
+  .founding-h2 em {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-secondary);
+  }
+  .founding-copy {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 1.5rem;
+  }
+  .founding-copy strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+  .founding-progress {
+    height: 6px;
+    background: var(--surface-inset);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 0 0.5rem;
+    max-width: 360px;
+  }
+  .founding-progress-bar {
+    height: 100%;
+    background: var(--accent-signal);
+    transition: width 300ms ease-out;
+  }
+  .founding-counter {
+    font-family: 'JetBrains Mono';
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    margin: 0 0 1.5rem;
+  }
+  .founding-closed {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-secondary);
+    margin: 0;
+  }
+
+  .price-faq {
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule-subtle);
+  }
+  .price-faq h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0 0 1.25rem;
+    color: var(--ink-primary);
+  }
+  .price-faq details {
+    border-top: 1px solid var(--rule-subtle);
+    padding: 0.875rem 0;
+  }
+  .price-faq details:last-of-type {
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  .price-faq summary {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--ink-primary);
+    cursor: pointer;
+    list-style: none;
+    padding-right: 1.5rem;
+    position: relative;
+  }
+  .price-faq summary::after {
+    content: '+';
+    position: absolute;
+    right: 0;
+    top: -0.1rem;
+    font-family: 'JetBrains Mono';
+    font-size: 1.25rem;
+    color: var(--ink-byline);
+  }
+  .price-faq details[open] summary::after {
+    content: '–';
+  }
+  .price-faq details p {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    margin: 0.75rem 0 0;
+    max-width: 60ch;
+  }
+  .price-faq a {
+    color: var(--accent-signal);
+  }
+</style>

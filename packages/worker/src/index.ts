@@ -25,6 +25,9 @@ import { handleDelistAppeal } from './routes/delist-appeal';
 import { handleMyPendingReports } from './routes/my-pending-reports';
 import { handleNetworkStats } from './routes/network-stats';
 import { handleSimulateCorroboration } from './routes/simulate-corroboration';
+import { handleCreateCheckoutSession } from './routes/create-checkout-session';
+import { handleStripeWebhook } from './routes/stripe-webhook';
+import { handleBillingPortal } from './routes/billing-portal';
 import {
   handleTriggerFtcIngestion,
   handleTriggerBlockList,
@@ -103,6 +106,54 @@ export default {
       } catch (err) {
         console.error('handleNetworkStats unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
+      }
+    }
+
+    // POST /api/create-checkout-session
+    if (url.pathname === '/api/create-checkout-session') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST, OPTIONS' },
+        });
+      }
+      try {
+        return await handleCreateCheckoutSession(request, env);
+      } catch (err) {
+        console.error('handleCreateCheckoutSession unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
+      }
+    }
+
+    // POST /api/billing-portal
+    if (url.pathname === '/api/billing-portal') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST, OPTIONS' },
+        });
+      }
+      try {
+        return await handleBillingPortal(request, env);
+      } catch (err) {
+        console.error('handleBillingPortal unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
+      }
+    }
+
+    // POST /api/stripe-webhook — no CORS (Stripe server-to-server)
+    if (url.pathname === '/api/stripe-webhook') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST' },
+        });
+      }
+      try {
+        return await handleStripeWebhook(request, env);
+      } catch (err) {
+        console.error('handleStripeWebhook unhandled error', err);
+        return new Response('Internal error', { status: 500 });
       }
     }
 
