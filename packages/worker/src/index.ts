@@ -28,6 +28,7 @@ import { handleSimulateCorroboration } from './routes/simulate-corroboration';
 import { handleCreateCheckoutSession } from './routes/create-checkout-session';
 import { handleStripeWebhook } from './routes/stripe-webhook';
 import { handleBillingPortal } from './routes/billing-portal';
+import { handleHealthSnapshot } from './routes/health-snapshot';
 import {
   handleTriggerFtcIngestion,
   handleTriggerBlockList,
@@ -171,6 +172,17 @@ export default {
         console.error('handleDelistAppeal unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
+    }
+
+    // GET /_admin/health-snapshot
+    if (url.pathname === '/_admin/health-snapshot') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'GET' },
+        });
+      }
+      return await handleHealthSnapshot(request, env);
     }
 
     // POST /_admin/simulate-corroboration
