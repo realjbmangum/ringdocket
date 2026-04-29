@@ -1,0 +1,172 @@
+---
+// Monthly impact report — sent on the 1st of each month.
+// Per PRD §11, paid-tier benefit.
+//
+// Subject: "Your Ringdocket impact — [Month]"
+// Inline CSS only. Web-safe font stack.
+//
+// Branded fonts (Bricolage Grotesque, Newsreader) could be added via
+// Google Fonts <link> tags later — at the cost of a network fetch and
+// Outlook compatibility.
+//
+// Dummy data; wire dynamic data when the sender pipeline is built.
+const month = 'April';
+const flagged = 14;
+const corroborated = 9;
+const firstFlagCredits = 3;
+const pendingExpiring = [
+  { phone: '(704) 555-0188', daysLeft: 2 },
+  { phone: '(919) 555-0143', daysLeft: 5 },
+];
+const campaignName = 'Medicare Card Renewal Ring';
+const campaignContribution = 4;
+const otherAccounts = 38;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Your Ringdocket impact — {month}</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F7F3EA;font-family:Georgia,'Times New Roman',serif;color:#1B1F27;-webkit-font-smoothing:antialiased;">
+
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#F7F3EA;">
+      This month you flagged {flagged} numbers. {corroborated} corroborated to the public block list.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F3EA;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF;border:1px solid #D8D0BE;border-radius:6px;">
+
+            <!-- Masthead -->
+            <tr>
+              <td style="padding:28px 32px 16px;border-bottom:1px solid #D8D0BE;">
+                <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:#1B1F27;">Ringdocket</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#C2370A;">.</span>
+                <span style="display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;margin-top:6px;">Monthly impact &middot; {month}</span>
+              </td>
+            </tr>
+
+            <!-- Hero -->
+            <tr>
+              <td style="padding:36px 32px 12px;">
+                <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.15;font-weight:700;color:#1B1F27;letter-spacing:-0.01em;">
+                  Your {month} on the ledger.
+                </h1>
+                <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.6;color:#1B1F27;">
+                  This month you flagged {flagged} numbers. {corroborated} of them corroborated to the public block list.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:0 32px;">
+                <div style="height:2px;width:48px;background:#C2370A;opacity:0.6;margin:18px 0 28px;"></div>
+              </td>
+            </tr>
+
+            <!-- Paragraph 1 — Corroborated -->
+            <tr>
+              <td style="padding:0 32px 22px;">
+                <p style="margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                  Corroborated this month
+                </p>
+                <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.7;color:#1B1F27;">
+                  Of the {flagged} numbers you flagged, {corroborated} hit the three-account threshold inside the 14-day window and joined the public block list. Most of them clustered in the Medicare Card Renewal Ring and the Auto Warranty Spoof &mdash; both active, both growing.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Paragraph 2 — First-flag credits -->
+            <tr>
+              <td style="padding:0 32px 22px;">
+                <p style="margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                  First-flag credits
+                </p>
+                <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.7;color:#1B1F27;">
+                  You earned {firstFlagCredits} first-flag credits this month &mdash; meaning you were the first verified account to flag a number that later corroborated. First-flag credits show up as a small accent stamp on your ledger row and on every campaign page where your report appears.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Paragraph 3 — Pending expiry -->
+            <tr>
+              <td style="padding:0 32px 22px;">
+                <p style="margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                  Pending &mdash; needs corroboration soon
+                </p>
+                {pendingExpiring.map((row) => (
+                  <p style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.65;color:#1B1F27;">
+                    <span style="font-family:'Courier New',Courier,monospace;font-size:14px;color:#1B1F27;">{row.phone}</span> &mdash; {row.daysLeft} days left in its corroboration window.
+                  </p>
+                ))}
+              </td>
+            </tr>
+
+            <!-- Campaign you fought -->
+            <tr>
+              <td style="padding:0 32px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F3EA;border:1px solid #D8D0BE;border-radius:6px;">
+                  <tr>
+                    <td style="padding:20px 22px;">
+                      <p style="margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                        A campaign you fought
+                      </p>
+                      <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.3;color:#1B1F27;font-weight:700;">
+                        {campaignName}
+                      </p>
+                      <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.65;color:#5C5D5F;">
+                        You contributed {campaignContribution} reports to the {campaignName} campaign this month, alongside {otherAccounts} other accounts.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td style="padding:0 32px 36px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center" bgcolor="#1B1F27" style="border-radius:6px;">
+                      <a href="https://ringdocket.com/app/campaigns"
+                         style="display:inline-block;padding:13px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;font-weight:500;color:#F7F3EA;text-decoration:none;border-radius:6px;background:#1B1F27;">
+                        Read the public ledger
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:20px 32px 28px;border-top:1px solid #D8D0BE;background:#F7F3EA;">
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  Sent by Ringdocket &middot; a product of LIGHTHOUSE 27 LLC
+                </p>
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  [TODO: Add LIGHTHOUSE 27 LLC mailing address]
+                </p>
+                <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  You received this email because monthly impact reports are a benefit of your paid Ringdocket subscription.
+                </p>
+                <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  <a href="[TODO: unsubscribe_url_group_impact from SendGrid]" style="color:#1B1F27;text-decoration:underline;">Unsubscribe from monthly impact reports</a> &middot;
+                  <a href="https://ringdocket.com/account/email-preferences" style="color:#1B1F27;text-decoration:underline;">Manage email preferences</a>
+                </p>
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>

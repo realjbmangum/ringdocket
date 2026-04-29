@@ -1,0 +1,40 @@
+Ringdocket — Welcome
+
+Welcome to the ledger.
+
+You're in. The block list — 28,500+ corroborated numbers — is already
+syncing to your phone.
+
+01 — How the list grows
+
+A number lands on the public block list when three different verified
+accounts flag it inside a rolling 14-day window. No two accounts can
+share a device fingerprint or IP block. That's the corroboration rule,
+and it's why the list earns trust instead of asking for it.
+
+02 — Your dashboard
+
+Track which campaigns you've fought, see which of your reports
+corroborated, and watch your first-flag credits accumulate.
+
+Open the dashboard: https://ringdocket.com/app/home
+
+03 — The iOS app
+
+Install the Call Directory extension, flip it on in Settings, and the
+corroborated block list goes live on your phone. Updates roll silently
+in the background.
+
+Get the iPhone app: https://ringdocket.com/ios
+
+File your first report: https://ringdocket.com/app/home
+
+Thanks for showing up.
+
+—
+Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+You received this email because you created a Ringdocket account.
+Manage email preferences: https://ringdocket.com/account/email-preferences
+Unsubscribe: [TODO: unsubscribe link from SendGrid]

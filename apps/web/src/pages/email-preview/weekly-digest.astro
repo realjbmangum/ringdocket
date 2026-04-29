@@ -1,0 +1,190 @@
+---
+// Weekly digest — "Public Enemy #1" — Mondays.
+// Per PRD §11, this is the highest-engagement marketing send.
+//
+// Subject: "Public Enemy #1 — week of [date]"
+// Inline CSS only. Web-safe font stack.
+//
+// Branded fonts (Bricolage Grotesque, Newsreader) could be re-added via
+// a Google Fonts <link> tag later — at the cost of a network fetch and
+// Outlook compatibility.
+//
+// Dummy data for preview. Wire dynamic data when SendGrid is hooked up.
+const weekOf = 'April 27, 2026';
+const totalReports = '1,847';
+const newOnList = '23';
+
+const enemy = {
+  area: '402 area code',
+  phone: '(402) 555-0142',
+  categories: 'Auto warranty, IRS impersonation, Medicare card renewal, debt relief, fake delivery alert',
+  velocity: 'flagged by 47 accounts in 6 days',
+  campaign: 'Medicare Card Renewal Ring',
+};
+
+const top5 = [
+  { phone: '(402) 555-0142', campaign: 'Medicare Card Renewal Ring', accounts: 47 },
+  { phone: '(929) 555-0188', campaign: 'Auto Warranty Spoof', accounts: 22 },
+  { phone: '(305) 555-0119', campaign: 'IRS Impersonation Wave', accounts: 14 },
+  { phone: '(615) 555-0177', campaign: 'Debt Relief Robocall', accounts: 9 },
+  { phone: '(213) 555-0163', campaign: 'Solar Lead Spoof', accounts: 6 },
+];
+
+const yourReports = 3;
+const yourPending = 2;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Public Enemy #1 — week of {weekOf}</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F7F3EA;font-family:Georgia,'Times New Roman',serif;color:#1B1F27;-webkit-font-smoothing:antialiased;">
+
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#F7F3EA;">
+      This week, {totalReports} reports promoted {newOnList} numbers to the public block list.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F3EA;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF;border:1px solid #D8D0BE;border-radius:6px;">
+
+            <!-- Masthead -->
+            <tr>
+              <td style="padding:28px 32px 16px;border-bottom:1px solid #D8D0BE;">
+                <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:#1B1F27;">Ringdocket</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#C2370A;">.</span>
+                <span style="display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;margin-top:6px;">Weekly digest &middot; week of {weekOf}</span>
+              </td>
+            </tr>
+
+            <!-- Hero -->
+            <tr>
+              <td style="padding:36px 32px 12px;">
+                <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.15;font-weight:700;color:#1B1F27;letter-spacing:-0.01em;">
+                  Public Enemy #1.
+                </h1>
+                <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.6;color:#1B1F27;">
+                  This week, {totalReports} reports across the network promoted {newOnList} numbers to the public block list. Here&rsquo;s the one nobody could stop reporting.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:0 32px;">
+                <div style="height:2px;width:48px;background:#C2370A;opacity:0.6;margin:18px 0 28px;"></div>
+              </td>
+            </tr>
+
+            <!-- Featured number card -->
+            <tr>
+              <td style="padding:0 32px 24px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F3EA;border:1px solid #D8D0BE;border-radius:6px;">
+                  <tr>
+                    <td style="padding:20px 22px;">
+                      <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                        {enemy.area}
+                      </p>
+                      <p style="margin:0 0 14px;font-family:'Courier New',Courier,monospace;font-size:22px;line-height:1.2;color:#1B1F27;font-weight:700;">
+                        {enemy.phone}
+                      </p>
+                      <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.6;color:#5C5D5F;">
+                        <strong style="color:#1B1F27;">Reported as:</strong> {enemy.categories}
+                      </p>
+                      <p style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.6;color:#5C5D5F;">
+                        <strong style="color:#1B1F27;">Velocity:</strong> {enemy.velocity}
+                      </p>
+                      <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.6;color:#5C5D5F;">
+                        <strong style="color:#1B1F27;">Campaign:</strong> {enemy.campaign}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Top 5 corroborated -->
+            <tr>
+              <td style="padding:0 32px 12px;">
+                <p style="margin:0 0 10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                  Top 5 corroborated this week
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #D8D0BE;border-radius:6px;overflow:hidden;">
+                  <tr>
+                    <th align="left" style="padding:10px 14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:#1B1F27;background:#EEE8DA;border-bottom:1px solid #D8D0BE;text-transform:uppercase;letter-spacing:0.04em;">Phone</th>
+                    <th align="left" style="padding:10px 14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:#1B1F27;background:#EEE8DA;border-bottom:1px solid #D8D0BE;text-transform:uppercase;letter-spacing:0.04em;">Campaign</th>
+                    <th align="right" style="padding:10px 14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;font-weight:600;color:#1B1F27;background:#EEE8DA;border-bottom:1px solid #D8D0BE;text-transform:uppercase;letter-spacing:0.04em;">Accounts</th>
+                  </tr>
+                  {top5.map((row, i) => (
+                    <tr style={`background:${i % 2 === 1 ? '#F7F3EA' : '#FFFFFF'};`}>
+                      <td style="padding:10px 14px;font-family:'Courier New',Courier,monospace;font-size:13px;color:#1B1F27;border-bottom:1px solid #E6DFCD;">{row.phone}</td>
+                      <td style="padding:10px 14px;font-family:Georgia,'Times New Roman',serif;font-size:14px;color:#5C5D5F;border-bottom:1px solid #E6DFCD;">{row.campaign}</td>
+                      <td align="right" style="padding:10px 14px;font-family:'Courier New',Courier,monospace;font-size:13px;color:#1B1F27;border-bottom:1px solid #E6DFCD;">{row.accounts}</td>
+                    </tr>
+                  ))}
+                </table>
+              </td>
+            </tr>
+
+            <!-- Your contribution -->
+            <tr>
+              <td style="padding:0 32px 28px;">
+                <p style="margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;">
+                  Your week
+                </p>
+                <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.65;color:#1B1F27;">
+                  You filed {yourReports} reports this week. {yourPending} are pending corroboration.
+                </p>
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td style="padding:0 32px 36px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center" bgcolor="#1B1F27" style="border-radius:6px;">
+                      <a href="https://ringdocket.com/app/my-impact"
+                         style="display:inline-block;padding:13px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;font-weight:500;color:#F7F3EA;text-decoration:none;border-radius:6px;background:#1B1F27;">
+                        View your impact
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:20px 32px 28px;border-top:1px solid #D8D0BE;background:#F7F3EA;">
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  Sent by Ringdocket &middot; a product of LIGHTHOUSE 27 LLC
+                </p>
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  [TODO: Add LIGHTHOUSE 27 LLC mailing address]
+                </p>
+                <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  You received this email because you subscribed to the Ringdocket weekly digest. We send one of these every Monday.
+                </p>
+                <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  <a href="[TODO: unsubscribe_url_group_digest from SendGrid]" style="color:#1B1F27;text-decoration:underline;">Unsubscribe from the weekly digest</a> &middot;
+                  <a href="https://ringdocket.com/account/email-preferences" style="color:#1B1F27;text-decoration:underline;">Manage email preferences</a>
+                </p>
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>

@@ -1,0 +1,50 @@
+Ringdocket — Monthly impact — April
+
+Your April on the ledger.
+
+This month you flagged 14 numbers. 9 of them corroborated to the public
+block list.
+
+—
+
+CORROBORATED THIS MONTH
+
+Of the 14 numbers you flagged, 9 hit the three-account threshold inside
+the 14-day window and joined the public block list. Most of them
+clustered in the Medicare Card Renewal Ring and the Auto Warranty Spoof
+— both active, both growing.
+
+—
+
+FIRST-FLAG CREDITS
+
+You earned 3 first-flag credits this month — meaning you were the first
+verified account to flag a number that later corroborated. First-flag
+credits show up as a small accent stamp on your ledger row and on every
+campaign page where your report appears.
+
+—
+
+PENDING — NEEDS CORROBORATION SOON
+
+(704) 555-0188 — 2 days left in its corroboration window.
+(919) 555-0143 — 5 days left in its corroboration window.
+
+—
+
+A CAMPAIGN YOU FOUGHT — Medicare Card Renewal Ring
+
+You contributed 4 reports to the Medicare Card Renewal Ring campaign
+this month, alongside 38 other accounts.
+
+Read the public ledger: https://ringdocket.com/app/campaigns
+
+—
+Sent by Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+You received this email because monthly impact reports are a benefit of
+your paid Ringdocket subscription.
+
+Unsubscribe from monthly impact reports: [TODO: unsubscribe_url_group_impact]
+Manage email preferences: https://ringdocket.com/account/email-preferences

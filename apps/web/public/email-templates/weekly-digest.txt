@@ -1,0 +1,46 @@
+Ringdocket — Weekly digest — week of April 27, 2026
+
+Public Enemy #1.
+
+This week, 1,847 reports across the network promoted 23 numbers to the
+public block list. Here's the one nobody could stop reporting.
+
+—
+
+PUBLIC ENEMY #1 — 402 area code
+(402) 555-0142
+
+Reported as: Auto warranty, IRS impersonation, Medicare card renewal,
+debt relief, fake delivery alert.
+Velocity: flagged by 47 accounts in 6 days.
+Campaign: Medicare Card Renewal Ring.
+
+—
+
+TOP 5 CORROBORATED THIS WEEK
+
+  Phone              Campaign                        Accounts
+  -------------      ---------------------------     --------
+  (402) 555-0142     Medicare Card Renewal Ring      47
+  (929) 555-0188     Auto Warranty Spoof             22
+  (305) 555-0119     IRS Impersonation Wave          14
+  (615) 555-0177     Debt Relief Robocall             9
+  (213) 555-0163     Solar Lead Spoof                 6
+
+—
+
+YOUR WEEK
+
+You filed 3 reports this week. 2 are pending corroboration.
+
+View your impact: https://ringdocket.com/app/my-impact
+
+—
+Sent by Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+You received this email because you subscribed to the Ringdocket weekly
+digest. We send one of these every Monday.
+
+Unsubscribe from the weekly digest: [TODO: unsubscribe_url_group_digest]
+Manage email preferences: https://ringdocket.com/account/email-preferences

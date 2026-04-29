@@ -1,0 +1,111 @@
+---
+// Magic-link email template — overrides Supabase's default magic link mail.
+// Copy the rendered HTML (view-source) into:
+//   Supabase Dashboard → Authentication → Email Templates → Magic Link
+//
+// Subject line: "Your Ringdocket sign-in link"
+//
+// Inline CSS only. Web-safe font stack only. (Bricolage Grotesque + Newsreader
+// could be re-added via a Google Fonts <link> tag in <head> later — at the
+// cost of an external network fetch and Outlook compatibility issues.)
+//
+// Supabase substitutes {{ .ConfirmationURL }} at send-time. This preview
+// renders a placeholder URL.
+
+const previewUrl = 'https://ringdocket.com/auth/callback?token=preview-token-not-real';
+const isPreview = !Astro.url.searchParams.has('raw');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>Your Ringdocket sign-in link</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F7F3EA;font-family:Georgia,'Times New Roman',serif;color:#1B1F27;-webkit-font-smoothing:antialiased;">
+
+    <!-- Preheader: visible in inbox preview, hidden in email body -->
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#F7F3EA;">
+      Tap the link to sign in. Expires in 60 minutes.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F3EA;">
+      <tr>
+        <td align="center" style="padding:32px 16px;">
+
+          <!-- Outer 600px column -->
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF;border:1px solid #D8D0BE;border-radius:6px;">
+
+            <!-- Masthead -->
+            <tr>
+              <td style="padding:28px 32px 16px;border-bottom:1px solid #D8D0BE;">
+                <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:#1B1F27;">Ringdocket</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#C2370A;">.</span>
+                <span style="display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#8D8875;margin-top:6px;">Sign-in request</span>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:32px;">
+                <p style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.6;color:#1B1F27;">
+                  Tap the link below on the device you want signed in. The link expires in 60 minutes.
+                </p>
+                <p style="margin:0 0 28px;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.6;color:#5C5D5F;">
+                  If you didn&rsquo;t request this email, ignore it. Nobody signed in.
+                </p>
+
+                <!-- Button (table-based for Outlook) -->
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;">
+                  <tr>
+                    <td align="center" bgcolor="#1B1F27" style="border-radius:6px;">
+                      <a href={isPreview ? previewUrl : '{{ .ConfirmationURL }}'}
+                         style="display:inline-block;padding:14px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;font-weight:500;color:#F7F3EA;text-decoration:none;border-radius:6px;background:#1B1F27;">
+                        Sign in to Ringdocket
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#8D8875;text-transform:uppercase;letter-spacing:0.06em;">
+                  Or paste this URL
+                </p>
+                <p style="margin:0 0 24px;font-family:'Courier New',Courier,monospace;font-size:13px;line-height:1.5;color:#3A3D44;word-break:break-all;background:#EEE8DA;padding:12px 14px;border-radius:6px;border:1px solid #D8D0BE;">
+                  {isPreview ? previewUrl : '{{ .ConfirmationURL }}'}
+                </p>
+
+                <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:14px;line-height:1.6;color:#5C5D5F;font-style:italic;">
+                  Heads up: this is a one-time link. Once you tap it, it can&rsquo;t be reused.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer (CAN-SPAM block) -->
+            <tr>
+              <td style="padding:20px 32px 28px;border-top:1px solid #D8D0BE;background:#F7F3EA;">
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  Ringdocket &middot; a product of LIGHTHOUSE 27 LLC
+                </p>
+                <p style="margin:0 0 8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  [TODO: Add LIGHTHOUSE 27 LLC mailing address]
+                </p>
+                <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;line-height:1.55;color:#8D8875;">
+                  This is a transactional sign-in email &mdash; no unsubscribe needed. If you didn&rsquo;t request it, email
+                  <a href="mailto:security@ringdocket.com" style="color:#1B1F27;text-decoration:underline;">security@ringdocket.com</a>.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+
+          <!-- Below-card meta -->
+          <p style="margin:16px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#8D8875;">
+            Sent because someone (probably you) requested a sign-in link at ringdocket.com.
+          </p>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
+</html>

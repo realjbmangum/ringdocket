@@ -1,0 +1,120 @@
+---
+// Plain admin index for email previews. Not branded — this is the work surface
+// Brian uses to spot-check templates before they go to a real inbox.
+//
+// Visit /email-preview on the dev server.
+
+const templates = [
+  {
+    name: 'Magic Link',
+    href: '/email-preview/magic-link',
+    txt: '/email-templates/magic-link.txt',
+    subject: 'Your Ringdocket sign-in link',
+    audience: 'Anyone requesting a sign-in link (overrides Supabase default).',
+    blurb: 'Transactional. One CTA, one fallback URL, CAN-SPAM footer.',
+  },
+  {
+    name: 'Welcome',
+    href: '/email-preview/welcome',
+    txt: '/email-templates/welcome.txt',
+    subject: 'Welcome to the ledger',
+    audience: 'Sent after a user’s first successful sign-in.',
+    blurb: 'Three short sections (corroboration rule, dashboard, iOS app) and a CTA.',
+  },
+  {
+    name: 'Weekly Digest',
+    href: '/email-preview/weekly-digest',
+    txt: '/email-templates/weekly-digest.txt',
+    subject: 'Public Enemy #1 — week of [date]',
+    audience: 'All opted-in accounts, every Monday.',
+    blurb: 'Featured number + top-5 corroborated table + your contribution.',
+  },
+  {
+    name: 'Monthly Impact',
+    href: '/email-preview/monthly-impact',
+    txt: '/email-templates/monthly-impact.txt',
+    subject: 'Your Ringdocket impact — [Month]',
+    audience: 'Paid subscribers, 1st of the month.',
+    blurb: 'Personal narrative — corroborated, first-flag credits, pending, campaign.',
+  },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Email Templates — Ringdocket Admin</title>
+    <style>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 32px 24px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #1f2328;
+        background: #f6f8fa;
+      }
+      .wrap { max-width: 880px; margin: 0 auto; }
+      h1 { font-size: 22px; margin: 0 0 4px; font-weight: 600; }
+      .lede { color: #57606a; margin: 0 0 28px; }
+      table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #d0d7de; border-radius: 6px; overflow: hidden; }
+      th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #d0d7de; vertical-align: top; }
+      th { background: #f6f8fa; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #57606a; }
+      tr:last-child td { border-bottom: 0; }
+      .name { font-weight: 600; color: #0969da; text-decoration: none; }
+      .name:hover { text-decoration: underline; }
+      .subject { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #1f2328; background: #eaeef2; padding: 2px 6px; border-radius: 3px; display: inline-block; }
+      .audience { color: #57606a; font-size: 13px; }
+      .blurb { color: #1f2328; font-size: 13px; margin-top: 4px; }
+      .links a { font-size: 12px; margin-right: 12px; color: #0969da; text-decoration: none; }
+      .links a:hover { text-decoration: underline; }
+      .note { background: #fff8c5; border: 1px solid #d4a72c; padding: 12px 16px; border-radius: 6px; margin: 24px 0; font-size: 13px; }
+      .note strong { display: block; margin-bottom: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Email Templates</h1>
+      <p class="lede">Spot-check these in the browser before wiring SendGrid. Each row links to the rendered HTML and the plain-text fallback.</p>
+
+      <div class="note">
+        <strong>Before sending</strong>
+        Replace every <code>[TODO: ...]</code> placeholder. The mailing address must be set before any email goes out (CAN-SPAM hard requirement). Unsubscribe URLs come from SendGrid&rsquo;s unsubscribe groups when that pipeline is wired.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Template</th>
+            <th>Subject</th>
+            <th>Audience &amp; notes</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          {templates.map((t) => (
+            <tr>
+              <td><a class="name" href={t.href}>{t.name}</a></td>
+              <td><span class="subject">{t.subject}</span></td>
+              <td>
+                <div class="audience">{t.audience}</div>
+                <div class="blurb">{t.blurb}</div>
+              </td>
+              <td class="links">
+                <a href={t.href}>HTML</a>
+                <a href={t.txt}>.txt</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <p style="margin-top:24px;color:#57606a;font-size:12px;">
+        See <code>docs/email-templates/README.md</code> for the deployment + Supabase paste instructions.
+      </p>
+    </div>
+  </body>
+</html>

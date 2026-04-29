@@ -1,0 +1,18 @@
+Ringdocket — Sign-in request
+
+Tap the link below on the device you want signed in. The link expires in
+60 minutes.
+
+If you didn't request this email, ignore it. Nobody signed in.
+
+Sign in to Ringdocket:
+{{ .ConfirmationURL }}
+
+Heads up: this is a one-time link. Once you tap it, it can't be reused.
+
+—
+Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+This is a transactional sign-in email — no unsubscribe needed.
+If you didn't request it, email security@ringdocket.com.
