@@ -127,7 +127,7 @@ struct HomeView: View {
                 Text("This week")
                     .font(.system(size: 11, weight: .medium))
                     .tracking(1.2)
-                    .foregroundStyle(Brand.Color.accentSignal)
+                    .foregroundStyle(Brand.Color.inkByline)
                     .textCase(.uppercase)
 
                 Text(headlineText(for: stats))
@@ -364,20 +364,19 @@ struct HomeView: View {
     }
 
     private func subheadText(for stats: MyStatsResponse) -> String {
+        // Narrative-leads-stats: prose first. The bottom stats strip is the
+        // canonical numeric record — the subhead is the editorial voice.
         if stats.reportsAllTime == 0 && stats.pendingCount == 0 {
             return "Submit a report. If two more accounts flag the same number within 14 days, it lands on the public block list — and stops ringing for every Ringdocket user."
         }
-        var parts: [String] = []
-        if stats.reportsAllTime > 0 {
-            parts.append("All-time: \(stats.reportsAllTime.formatted()) report\(stats.reportsAllTime == 1 ? "" : "s")")
+        if stats.reportsAllTime == 0 && stats.pendingCount > 0 {
+            return "Two more accounts flagging the same number within 14 days promotes it to the public block list. Every flag stays on the record either way."
         }
         if let cat = stats.topCategory {
-            parts.append("most are \(prettifyCategory(cat).lowercased())")
+            let category = prettifyCategory(cat).lowercased()
+            return "Most of your reports this week tag the \(category) ring. Every flag stays on the public record, cited by campaign and carrier."
         }
-        if stats.firstFlagCredits > 0 {
-            parts.append("\(stats.firstFlagCredits) first-flag credit\(stats.firstFlagCredits == 1 ? "" : "s") earned")
-        }
-        return parts.joined(separator: " · ") + "."
+        return "Every flag stays on the public record, cited by campaign and carrier path."
     }
 
     private func prettifyCategory(_ raw: String) -> String {

@@ -52,7 +52,7 @@ struct ReportView: View {
             Text("Report a call")
                 .font(.system(size: 11, weight: .medium))
                 .tracking(1.2)
-                .foregroundStyle(Brand.Color.accentSignal)
+                .foregroundStyle(Brand.Color.inkByline)
                 .textCase(.uppercase)
 
             Text("Who called?")

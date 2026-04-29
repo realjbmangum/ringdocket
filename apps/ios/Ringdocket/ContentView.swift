@@ -39,7 +39,7 @@ struct ContentView: View {
                     Text("Phase 4a")
                         .font(.system(size: 11, weight: .medium))
                         .tracking(1.2)
-                        .foregroundStyle(Brand.Color.accentSignal)
+                        .foregroundStyle(Brand.Color.inkByline)
                         .textCase(.uppercase)
 
                     Text("Get the list on this phone.")

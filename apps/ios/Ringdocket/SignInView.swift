@@ -25,7 +25,7 @@ struct SignInView: View {
                     Text("Sign in")
                         .font(.system(size: 11, weight: .medium))
                         .tracking(1.2)
-                        .foregroundStyle(Brand.Color.accentSignal)
+                        .foregroundStyle(Brand.Color.inkByline)
                         .textCase(.uppercase)
 
                     Text("Report calls. Help build the list.")
