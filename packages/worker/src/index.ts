@@ -23,6 +23,7 @@ import type { Env } from './types';
 import { handleReport } from './routes/report';
 import { handleDelistAppeal } from './routes/delist-appeal';
 import { handleMyPendingReports } from './routes/my-pending-reports';
+import { handleMyStats } from './routes/my-stats';
 import { handleNetworkStats } from './routes/network-stats';
 import { handleSimulateCorroboration } from './routes/simulate-corroboration';
 import { handleCreateCheckoutSession } from './routes/create-checkout-session';
@@ -90,6 +91,22 @@ export default {
         return await handleMyPendingReports(request, env);
       } catch (err) {
         console.error('handleMyPendingReports unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
+      }
+    }
+
+    // GET /api/my-stats
+    if (url.pathname === '/api/my-stats') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'GET, OPTIONS' },
+        });
+      }
+      try {
+        return await handleMyStats(request, env);
+      } catch (err) {
+        console.error('handleMyStats unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
     }

@@ -34,6 +34,13 @@ export interface NetworkStatsResponse {
   newThisWeek: number;
   dailyTrend: Array<{ date: string; count: number }>;
   topCampaigns: Array<{ slug: string; name: string; count: number }>;
+  recentCorroborated: Array<{
+    phone: string;
+    corroboratedAt: string | null;
+    reputationScore: number | null;
+    campaignSlug: string | null;
+    campaignName: string | null;
+  }>;
 }
 
 function isoDayUtc(d: Date): string {
@@ -106,6 +113,7 @@ export async function handleNetworkStats(
     trendRowsRes,
     campaignsRes,
     corroboratedCampaignIdsRes,
+    recentRes,
   ] = await Promise.all([
     supabase
       .from('numbers')
@@ -140,6 +148,12 @@ export async function handleNetworkStats(
           .eq('current_state', 'corroborated')
           .not('campaign_id', 'is', null),
     ),
+    supabase
+      .from('numbers')
+      .select('phone, corroborated_at, reputation_score, campaign:campaigns(slug, name)')
+      .eq('current_state', 'corroborated')
+      .order('corroborated_at', { ascending: false, nullsFirst: false })
+      .limit(8),
   ]);
 
   const firstErr =
@@ -148,7 +162,8 @@ export async function handleNetworkStats(
     weekRes.error ??
     trendRowsRes.error ??
     campaignsRes.error ??
-    corroboratedCampaignIdsRes.error;
+    corroboratedCampaignIdsRes.error ??
+    recentRes.error;
   if (firstErr) {
     return jsonError(500, 'internal', firstErr.message, undefined, req);
   }
@@ -195,12 +210,28 @@ export async function handleNetworkStats(
     .sort((a, b) => b.count - a.count)
     .slice(0, TOP_CAMPAIGNS_LIMIT);
 
+  const recentRows =
+    (recentRes.data as Array<{
+      phone: string;
+      corroborated_at: string | null;
+      reputation_score: number | null;
+      campaign: { slug: string; name: string } | null;
+    }>) ?? [];
+  const recentCorroborated = recentRows.map((r) => ({
+    phone: r.phone,
+    corroboratedAt: r.corroborated_at,
+    reputationScore: r.reputation_score,
+    campaignSlug: r.campaign?.slug ?? null,
+    campaignName: r.campaign?.name ?? null,
+  }));
+
   const body: NetworkStatsResponse = {
     totalCorroborated: totalRes.count ?? 0,
     totalActiveCampaigns: activeCampaignsRes.count ?? 0,
     newThisWeek: weekRes.count ?? 0,
     dailyTrend,
     topCampaigns,
+    recentCorroborated,
   };
 
   return jsonOk(body, 200, req);
