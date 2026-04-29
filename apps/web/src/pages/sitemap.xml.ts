@@ -54,15 +54,19 @@ export const GET: APIRoute = async () => {
       });
     }
 
-    // Corroborated phone numbers — paginate across all of them.
+    // Corroborated phone numbers — must mirror the prerender cap in
+    // /number/[phone].astro (top 5,000 by reputation_score). Listing
+    // numbers here that don't have a corresponding page would feed
+    // Google 404s.
     const PAGE = 1000;
-    for (let page = 0; page < 100; page++) {
-      const from = page * PAGE;
-      const to = from + PAGE - 1;
+    const TARGET = 5000;
+    for (let from = 0; from < TARGET; from += PAGE) {
+      const to = Math.min(from + PAGE, TARGET) - 1;
       const { data, error } = await client
         .from('numbers')
         .select('phone')
         .eq('current_state', 'corroborated')
+        .order('reputation_score', { ascending: false })
         .order('phone', { ascending: true })
         .range(from, to);
       if (error) {

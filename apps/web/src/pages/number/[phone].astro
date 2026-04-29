@@ -19,22 +19,22 @@ export async function getStaticPaths() {
   }
   const client = createClient(url, key, { auth: { persistSession: false } });
 
-  // PostgREST caps each response at 1000 rows — paginate across all
-  // corroborated numbers. At ~15k rows this is ~15 round-trips, a few
-  // seconds added to the build. Cheap insurance against a stale
-  // hardcoded list.
+  // Cloudflare Pages caps deployments at 20,000 files. Prerender the
+  // top 5,000 most-reported numbers (highest SEO value) and let the
+  // long tail 404 for now. PostgREST caps each response at 1,000 rows
+  // so we paginate in 5 round-trips.
   const PAGE = 1000;
-  const MAX_PAGES = 100;
+  const TARGET = 5000;
   const all: NumberRowRaw[] = [];
-  for (let page = 0; page < MAX_PAGES; page++) {
-    const from = page * PAGE;
-    const to = from + PAGE - 1;
+  for (let from = 0; from < TARGET; from += PAGE) {
+    const to = Math.min(from + PAGE, TARGET) - 1;
     const { data, error } = await client
       .from('numbers')
       .select(
         'phone, reputation_score, corroborated_at, current_state, campaign:campaigns(slug, name)',
       )
       .eq('current_state', 'corroborated')
+      .order('reputation_score', { ascending: false })
       .order('phone', { ascending: true })
       .range(from, to);
     if (error) {
