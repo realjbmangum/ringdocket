@@ -41,21 +41,37 @@ targets:
       - path: Ringdocket
     resources:
       - path: Ringdocket/Assets.xcassets
+    info:
+      path: Ringdocket/Info.plist
+      properties:
+        CFBundleDisplayName: Ringdocket
+        UILaunchScreen:
+          UIColorName: ""
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        CFBundleURLTypes:
+          - CFBundleURLName: com.lighthouse27.ringdocket.auth
+            CFBundleURLSchemes:
+              - ringdocket
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.lighthouse27.ringdocket.blocklist-refresh
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lighthouse27.ringdocket
         PRODUCT_NAME: Ringdocket
-        MARKETING_VERSION: "0.1.0"
+        MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_CFBundleDisplayName: Ringdocket
+        GENERATE_INFOPLIST_FILE: NO
         ENABLE_PREVIEWS: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_ENTITLEMENTS: Ringdocket/Ringdocket.entitlements
     dependencies:
       - target: RingdocketBlockList
+    scheme:
+      testTargets: []
+      gatherCoverageData: false
 
   RingdocketBlockList:
     type: app-extension
@@ -67,6 +83,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lighthouse27.ringdocket.blocklist
         PRODUCT_NAME: RingdocketBlockList
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
         INFOPLIST_FILE: RingdocketBlockList/Info.plist
         CODE_SIGN_ENTITLEMENTS: RingdocketBlockList/RingdocketBlockList.entitlements
         SKIP_INSTALL: YES

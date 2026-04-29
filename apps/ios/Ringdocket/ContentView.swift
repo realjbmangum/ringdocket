@@ -13,6 +13,7 @@ struct ContentView: View {
 
     @State private var status: SyncStatus = .idle
     @State private var lastSync: LastSyncDisplay?
+    @State private var showingReport = false
 
     enum SyncStatus: Equatable {
         case idle
@@ -55,6 +56,8 @@ struct ContentView: View {
 
                 Spacer()
 
+                reportButton
+
                 syncButton
 
                 lastSyncFooter
@@ -64,6 +67,9 @@ struct ContentView: View {
         }
         .task {
             await refreshLastSync()
+        }
+        .sheet(isPresented: $showingReport) {
+            ReportView()
         }
     }
 
@@ -125,6 +131,18 @@ struct ContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
+    private var reportButton: some View {
+        Button(action: { showingReport = true }) {
+            Text("Report a call")
+                .font(.system(size: 15, weight: .medium))
+                .foregroundStyle(Brand.Color.surfacePaper)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+        }
+        .background(Brand.Color.inkPrimary)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+    }
+
     private var syncButton: some View {
         Button(action: handleSync) {
             HStack {
@@ -134,13 +152,12 @@ struct ContentView: View {
                     Text("Sync block list")
                 }
             }
-            .font(.system(size: 15, weight: .medium))
-            .foregroundStyle(Brand.Color.surfacePaper)
+            .font(.system(size: 14, weight: .medium))
+            .foregroundStyle(Brand.Color.inkPrimary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
         }
-        .background(Brand.Color.inkPrimary)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Brand.Color.rule, lineWidth: 1))
         .disabled({ if case .syncing = status { return true } else { return false } }())
     }
 
@@ -170,13 +187,9 @@ struct ContentView: View {
                     status = .syncing(stage: "Reloading extension…")
                 }
 
-                try await CXCallDirectoryManager.sharedInstance.reloadExtension(
-                    withIdentifier: Self.extensionBundleId
-                )
+                try await reloadCallDirectoryExtension(identifier: Self.extensionBundleId)
 
-                let enabledStatus = try await CXCallDirectoryManager.sharedInstance.getEnabledStatusForExtension(
-                    withIdentifier: Self.extensionBundleId
-                )
+                let enabledStatus = try await callDirectoryEnabledStatus(identifier: Self.extensionBundleId)
 
                 await MainActor.run {
                     if enabledStatus == .enabled {
@@ -213,6 +226,30 @@ struct ContentView: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private func reloadCallDirectoryExtension(identifier: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            CXCallDirectoryManager.sharedInstance.reloadExtension(withIdentifier: identifier) { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+
+    private func callDirectoryEnabledStatus(identifier: String) async throws -> CXCallDirectoryManager.EnabledStatus {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<CXCallDirectoryManager.EnabledStatus, Error>) in
+            CXCallDirectoryManager.sharedInstance.getEnabledStatusForExtension(withIdentifier: identifier) { status, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: status)
+                }
+            }
+        }
     }
 }
 
