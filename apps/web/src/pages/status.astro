@@ -1,0 +1,213 @@
+---
+import Base from '../layouts/Base.astro';
+
+const lastVerified = '2026-04-29 14:00 ET';
+---
+
+<Base
+  title="Status — Ringdocket"
+  description="Ringdocket system status. Block list, worker, dashboard, and ingest pipeline operational."
+>
+  <main class="prose-page">
+    <p class="kicker mono">System status</p>
+    <h1>All systems operational.</h1>
+    <p class="lead">
+      Real-time monitoring is deferred to Phase 5. This page reflects
+      manually-verified state. If something looks wrong from where you sit,
+      email <a href="mailto:support@ringdocket.com">support@ringdocket.com</a>
+      and we will look immediately.
+    </p>
+
+    <section class="status-list">
+      <div class="row">
+        <span class="dot ok"></span>
+        <div class="row-body">
+          <p class="row-name">Public block list</p>
+          <p class="row-meta mono">blocklist.ringdocket.com/current.json &middot; verified {lastVerified}</p>
+        </div>
+        <span class="status-tag ok mono">operational</span>
+      </div>
+
+      <div class="row">
+        <span class="dot ok"></span>
+        <div class="row-body">
+          <p class="row-name">API worker</p>
+          <p class="row-meta mono">ringdocket-worker.bmangum1.workers.dev/api/health &middot; verified {lastVerified}</p>
+        </div>
+        <span class="status-tag ok mono">operational</span>
+      </div>
+
+      <div class="row">
+        <span class="dot ok"></span>
+        <div class="row-body">
+          <p class="row-name">Web dashboard</p>
+          <p class="row-meta mono">app.ringdocket.com/app/home &middot; verified {lastVerified}</p>
+        </div>
+        <span class="status-tag ok mono">operational</span>
+      </div>
+
+      <div class="row">
+        <span class="dot ok"></span>
+        <div class="row-body">
+          <p class="row-name">FTC ingest cron</p>
+          <p class="row-meta mono">last successful run 2026-04-29 06:00 UTC &middot; 86,519 complaints in store</p>
+        </div>
+        <span class="status-tag ok mono">operational</span>
+      </div>
+
+      <div class="row">
+        <span class="dot ok"></span>
+        <div class="row-body">
+          <p class="row-name">Auth (Supabase magic-link)</p>
+          <p class="row-meta mono">verified {lastVerified}</p>
+        </div>
+        <span class="status-tag ok mono">operational</span>
+      </div>
+    </section>
+
+    <h2>Sources of truth</h2>
+    <ul class="links">
+      <li>
+        <a href="https://blocklist.ringdocket.com/current.json" rel="noopener">
+          blocklist.ringdocket.com/current.json
+        </a>
+        &mdash; the live, public block list. If this 200s with valid JSON, distribution is healthy.
+      </li>
+      <li>
+        <a href="https://ringdocket-worker.bmangum1.workers.dev/api/health" rel="noopener">
+          ringdocket-worker.bmangum1.workers.dev/api/health
+        </a>
+        &mdash; worker health probe. If this 200s, the API plane is up.
+      </li>
+      <li>
+        <a href="https://app.ringdocket.com/app/home" rel="noopener">
+          app.ringdocket.com/app/home
+        </a>
+        &mdash; web dashboard. Sign in to confirm authenticated routes resolve.
+      </li>
+    </ul>
+
+    <p class="footnote">
+      A real status backend &mdash; with synthetic checks, uptime history, and
+      incident timelines &mdash; is on the Phase 5 roadmap. Until then, this
+      page is updated by hand whenever the underlying state changes.
+    </p>
+  </main>
+</Base>
+
+<style>
+  .prose-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .kicker {
+    font-size: 0.75rem;
+    color: var(--signal-corroborated);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2.5rem 0 1rem;
+    color: var(--ink-primary);
+  }
+  .lead {
+    font-family: 'Newsreader';
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 2.5rem;
+  }
+  .lead a {
+    color: var(--ink-primary);
+  }
+  .status-list {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--rule-subtle);
+  }
+  .row:last-child {
+    border-bottom: none;
+  }
+  .dot {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.ok {
+    background: var(--signal-corroborated);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal-corroborated) 18%, transparent);
+  }
+  .row-name {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .row-meta {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    margin: 0.25rem 0 0;
+  }
+  .status-tag.ok {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--signal-corroborated);
+  }
+  .links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+  }
+  .links li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dotted var(--rule-subtle);
+  }
+  .links li:last-child {
+    border-bottom: none;
+  }
+  .links a {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    color: var(--ink-primary);
+    word-break: break-all;
+  }
+  .footnote {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--ink-byline);
+    margin: 2.5rem 0 0;
+    max-width: 60ch;
+  }
+</style>

@@ -1,0 +1,199 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Data sources — Ringdocket"
+  description="The public sources Ringdocket ingests. FTC complaints today; FCC enforcement and ITG tracebacks where accessible."
+>
+  <main class="prose-page">
+    <p class="kicker mono">Record</p>
+    <h1>What we ingest, and where it comes from.</h1>
+    <p class="lead">
+      Most spam-blocker apps run a closed list. You install, you trust, you
+      hope. We don't ask for that. Every number on the public block list
+      either came from corroborated user reports or from a public
+      government source we can cite by URL. This page lists every source.
+    </p>
+
+    <h2>Live in V1</h2>
+
+    <section class="source">
+      <header class="source-head">
+        <p class="source-name">FTC National Do Not Call Registry &mdash; consumer complaints</p>
+        <p class="source-meta mono">86,519 complaints ingested as of 2026-04-29</p>
+      </header>
+      <p>
+        The Federal Trade Commission publishes consumer complaints filed
+        against numbers that violate Do Not Call rules. The dataset is in the
+        public domain under 17 U.S.C. &sect;105. Our cron pulls the feed daily,
+        normalizes the phone numbers to E.164, and writes them to our
+        corroboration store. A single FTC complaint counts as a corroborated
+        signal &mdash; the FTC does the verification work for us.
+      </p>
+      <p class="source-cite mono">
+        Attribution required where the data is displayed:
+        "Includes data from the FTC National Do Not Call Registry."
+      </p>
+    </section>
+
+    <section class="source">
+      <header class="source-head">
+        <p class="source-name">User reports through the iOS app</p>
+        <p class="source-meta mono">Three accounts, fourteen days, distinct devices and /24 subnets</p>
+      </header>
+      <p>
+        A report from one user is a flag. Three reports about the same
+        number from three distinct accounts within a rolling 14-day window,
+        with no two sharing a device fingerprint or an IP /24 &mdash; that
+        promotes to the public block list. Notes attached to a report stay
+        private; only the number, category, and timestamp ever leave the
+        moderation layer.
+      </p>
+    </section>
+
+    <h2>Planned, not yet shipped</h2>
+
+    <section class="source pending">
+      <header class="source-head">
+        <p class="source-name">FCC enforcement actions</p>
+        <p class="source-meta mono">attribution badges on takedowns</p>
+      </header>
+      <p>
+        When the FCC publicly cites or fines a campaign, we want that fact
+        attached to every number associated with it &mdash; an "attributed
+        takedown" badge that says, in plain language, who took it down and
+        when. Today we draft that copy by hand from press releases. Phase 4
+        plans an automated ingest of the FCC enforcement index.
+      </p>
+    </section>
+
+    <section class="source pending">
+      <header class="source-head">
+        <p class="source-name">Industry Traceback Group (ITG) tracebacks</p>
+        <p class="source-meta mono">if the public listing remains accessible</p>
+      </header>
+      <p>
+        ITG publishes traceback summaries identifying which carriers
+        originated specific spam campaigns. If the public listing stays
+        accessible, we will attribute originating-carrier data on campaign
+        pages. If access closes, we say so &mdash; we don't fake the
+        attribution.
+      </p>
+    </section>
+
+    <h2>The block list is public</h2>
+    <p>
+      The current public block list is served as JSON at
+      <a href="https://blocklist.ringdocket.com/current.json" class="mono">
+        blocklist.ringdocket.com/current.json
+      </a>.
+      Anyone can fetch it, audit it, or build something else on top of it
+      under the terms in our
+      <a href="/terms">Terms of Service</a>. The corroboration record behind
+      every number is visible from
+      <a href="/methodology">our methodology page</a>.
+    </p>
+
+    <p class="bottom-note">
+      If you find a public dataset we should be ingesting, email
+      <a href="mailto:hello@ringdocket.com">hello@ringdocket.com</a>. The
+      strongest pitches link to a stable URL and a non-restrictive license.
+    </p>
+  </main>
+</Base>
+
+<style>
+  .prose-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .kicker {
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1.25rem;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2.75rem 0 1rem;
+    color: var(--ink-primary);
+  }
+  .lead {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 1.5rem;
+  }
+  p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  .source {
+    border-top: 1px solid var(--rule);
+    padding: 1.25rem 0 0.5rem;
+    margin-top: 1.25rem;
+  }
+  .source.pending {
+    opacity: 0.85;
+  }
+  .source-head {
+    margin: 0 0 0.75rem;
+  }
+  .source-name {
+    font-family: 'Inter Tight';
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--ink-primary);
+    margin: 0;
+  }
+  .source-meta {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    margin: 0.25rem 0 0;
+  }
+  .source-cite {
+    font-size: 0.6875rem;
+    color: var(--ink-byline);
+    background: var(--surface-inset);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    margin-top: 0.75rem;
+  }
+  a {
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  a:hover {
+    border-bottom-color: var(--ink-primary);
+  }
+  .mono {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+  }
+  .bottom-note {
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--ink-byline);
+    margin-top: 2rem;
+  }
+</style>

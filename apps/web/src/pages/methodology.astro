@@ -1,0 +1,188 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Methodology — Ringdocket"
+  description="How a phone number gets onto the Ringdocket public block list. The corroboration model, decay rules, and language discipline."
+>
+  <main class="prose-page">
+    <p class="kicker mono">Record</p>
+    <h1>How a number gets on the list.</h1>
+    <p class="lead">
+      A block list earns trust by showing its work. This page documents the
+      rules a number must satisfy before we publish it, the rules that take
+      it back off, and the language we use to describe what we know &mdash;
+      so the things we report look like the things we can prove.
+    </p>
+
+    <h2>The corroboration threshold</h2>
+    <p>
+      A single user reporting a number is a flag. Useful, but not enough. A
+      number is promoted from the pending queue to the public block list
+      only when <strong>three distinct verified accounts</strong> report the
+      same number within a <strong>rolling 14-day window</strong>, and:
+    </p>
+    <ul class="rules">
+      <li>No two of those reports share a device fingerprint &mdash; reinstalling the app generates a new UUID, but a single device can't carry two accounts to the threshold.</li>
+      <li>No two of those reports come from the same IP /24 subnet within the window &mdash; a single network can't manufacture corroboration.</li>
+      <li>The reporting accounts are not flagged for prior griefing or coordinated abuse.</li>
+    </ul>
+    <p>
+      The full IP is discarded after 30 days. We keep the /24 because that
+      is the smallest unit that resists low-effort coordination without
+      logging anything that could re-identify a specific user.
+    </p>
+
+    <h2>The FTC bypass</h2>
+    <p>
+      The <a href="/data-sources">FTC National Do Not Call Registry</a>
+      complaint feed is government work product, already verified before we
+      see it. We treat a single FTC complaint as a corroborated signal on
+      its own &mdash; the user-account threshold doesn't apply when the
+      FTC has done the verification. Numbers ingested this way carry an
+      "FTC-attributed" badge so the source is visible.
+    </p>
+
+    <h2>Removal: activity decay and "likely retired"</h2>
+    <p>
+      Spam numbers churn. A number that was hammering thousands of phones
+      this month often goes silent the next, because the campaign rotated.
+      Carrying dead weight on the block list dilutes its value and can
+      strand a future legitimate owner of a recycled number.
+    </p>
+    <p>
+      We mark a number <strong>likely retired</strong> when reports about
+      it drop to zero across <strong>100+ active users</strong> for
+      <strong>30 or more days</strong>. The number stays on the block list
+      &mdash; recycled-number protection &mdash; but the campaign page
+      shifts language to past tense and the number falls off the trending
+      view. If new flags arrive after that, the number is promoted back to
+      active.
+    </p>
+
+    <h2>Copy discipline</h2>
+    <p>
+      Three terms, three meanings, never blurred:
+    </p>
+    <ul class="rules">
+      <li>
+        <strong>Reported by N users.</strong> A factual statement about
+        what was submitted. Not a claim about what the number is.
+      </li>
+      <li>
+        <strong>Likely retired.</strong> An inference from activity decay.
+        We use this only when no public enforcement source confirms the
+        takedown.
+      </li>
+      <li>
+        <strong>Attributed takedown.</strong> Reserved for the case where a
+        public enforcement source &mdash; FCC press release, court filing,
+        ITG traceback &mdash; confirms the takedown. The source is linked
+        on the campaign page.
+      </li>
+    </ul>
+    <p>
+      We never call a number "spam" or "scam" with the certainty of a
+      verdict. The labels we ship are the labels we can defend on the
+      record.
+    </p>
+
+    <h2>Delist and appeal</h2>
+    <p>
+      If a number you own is on the list and you believe it was wrongly
+      flagged, the public form is at
+      <a href="/report-an-error">/report-an-error</a>. We respond within
+      10 business days. The full criteria, evidence requirements, and
+      appeal path live in our
+      <a href="/terms">Terms of Service &sect;8</a>.
+    </p>
+  </main>
+</Base>
+
+<style>
+  .prose-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .kicker {
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1.25rem;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2.5rem 0 1rem;
+    color: var(--ink-primary);
+  }
+  .lead {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 1rem;
+  }
+  p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  p strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+  .rules {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 1rem;
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  .rules li {
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    border-bottom: 1px dotted var(--rule-subtle);
+    position: relative;
+  }
+  .rules li:last-child {
+    border-bottom: none;
+  }
+  .rules li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink-byline);
+    font-family: 'JetBrains Mono';
+  }
+  .rules strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+  a {
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  a:hover {
+    border-bottom-color: var(--ink-primary);
+  }
+</style>

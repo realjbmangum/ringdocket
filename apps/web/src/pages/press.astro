@@ -1,0 +1,212 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Press — Ringdocket"
+  description="Press contact, fact sheet, and brand assets for Ringdocket. A spam blocker that shows its work."
+>
+  <main class="prose-page">
+    <p class="kicker mono">Press</p>
+    <h1>A spam blocker that shows its work.</h1>
+    <p class="lead">
+      Ringdocket is a phone-number block list with a public ledger behind
+      it. Every number on the list is corroborated by three independent
+      reports or by a public FTC complaint. When a campaign goes dark, we
+      mark how it went dark. The point isn't a bigger list. The point is a
+      list you can audit.
+    </p>
+
+    <section class="contact">
+      <p class="contact-label mono">Press contact</p>
+      <p class="contact-line">
+        <a href="mailto:press@ringdocket.com">press@ringdocket.com</a>
+      </p>
+      <p class="contact-meta">
+        Based in the Carolinas. LIGHTHOUSE 27 LLC, Delaware. Founder Brian Mangum
+        is available for interview.
+      </p>
+    </section>
+
+    <h2>Fact sheet</h2>
+    <ul class="facts">
+      <li><strong>What it is.</strong> An iOS spam-call blocker plus a public web ledger. Free to block, paid to see the receipts.</li>
+      <li><strong>The differentiator.</strong> Every published number cites its evidence &mdash; user reports, FTC complaints, FCC enforcement &mdash; instead of a closed proprietary list.</li>
+      <li><strong>Numbers on the public ledger.</strong> 28,546+ corroborated phone numbers as of April 2026.</li>
+      <li><strong>FTC complaints ingested.</strong> 86,519 and growing daily.</li>
+      <li><strong>Active campaigns.</strong> 13 spam rings clustered, named, and tracked on the ledger today.</li>
+      <li><strong>Pricing.</strong> Free tier blocks calls forever. Ringdocket Full is $3.99/mo or $29.99/yr. Founding Flagger is $19.99/yr lifetime-locked, capped at the first 500 annual subscribers.</li>
+      <li><strong>Stack.</strong> SwiftUI on iOS, Astro + Cloudflare Pages on the web, Cloudflare Workers for the API and ingest crons, Supabase Postgres with row-level security on every table.</li>
+      <li><strong>What we don't do.</strong> No call recording. No contact-book uploads. No third-party tracking SDKs. No IDFA. See <a href="/security">/security</a>.</li>
+    </ul>
+
+    <h2>Quick angles</h2>
+    <p>
+      Three pitch lanes worth covering. Full versioning, quotes, and proof
+      points are in the brand messaging document &mdash;
+      <code class="mono">docs/brand/04-messaging.md</code>.
+    </p>
+    <ul class="angles">
+      <li>
+        <strong>"The spam economy has a public record now."</strong>
+        Hiya, RoboKiller, and Truecaller block; none of them publish what
+        they know. Ringdocket does.
+      </li>
+      <li>
+        <strong>"Why your spam blocker won't tell you who called you."</strong>
+        The business model behind closed lists, and what changes when the
+        ledger is open.
+      </li>
+      <li>
+        <strong>"Indie tools, real receipts."</strong>
+        A solo-built product running on Cloudflare and Supabase, taking on
+        a category dominated by carriers and venture-backed apps.
+      </li>
+    </ul>
+
+    <h2>Assets</h2>
+    <p>
+      Logos, screenshots, founder headshot, and the one-page fact sheet are
+      bundled in the press kit. Available on request while the public download
+      is being assembled.
+    </p>
+    <p class="kit-link">
+      <a href="mailto:press@ringdocket.com?subject=Ringdocket%20press%20kit">
+        Email press@ringdocket.com for the kit
+      </a>
+      <span class="kit-note mono">[TODO: link press kit ZIP after assembly]</span>
+    </p>
+  </main>
+</Base>
+
+<style>
+  .prose-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .kicker {
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1.25rem;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2.5rem 0 1rem;
+    color: var(--ink-primary);
+  }
+  .lead {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 2rem;
+  }
+  p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  .contact {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 0 0 2rem;
+  }
+  .contact-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-byline);
+    margin: 0 0 0.5rem;
+  }
+  .contact-line {
+    font-family: 'Bricolage Grotesque';
+    font-size: 1.25rem;
+    color: var(--ink-primary);
+    margin: 0 0 0.5rem;
+  }
+  .contact-line a {
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  .contact-line a:hover {
+    border-bottom-color: var(--ink-primary);
+  }
+  .contact-meta {
+    font-family: 'Newsreader';
+    font-size: 0.9375rem;
+    color: var(--ink-byline);
+    margin: 0;
+  }
+  .facts,
+  .angles {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  .facts li,
+  .angles li {
+    padding: 0.6875rem 0;
+    border-bottom: 1px dotted var(--rule-subtle);
+  }
+  .facts li:last-child,
+  .angles li:last-child {
+    border-bottom: none;
+  }
+  .facts strong,
+  .angles strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+  a {
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  a:hover {
+    border-bottom-color: var(--ink-primary);
+  }
+  .mono {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    background: var(--surface-inset);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    color: var(--ink-mono);
+  }
+  .kit-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .kit-note {
+    font-size: 0.75rem;
+    background: transparent;
+    color: var(--ink-byline);
+    padding: 0;
+  }
+</style>

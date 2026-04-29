@@ -1,0 +1,223 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Security — Ringdocket"
+  description="How Ringdocket handles your data. Row-level security, JWT-verified routes, Keychain-stored tokens, no recording, no third-party tracking."
+>
+  <main class="prose-page">
+    <p class="kicker mono">Security</p>
+    <h1>The smallest data footprint we can ship.</h1>
+    <p class="lead">
+      Call-blocker apps have a bad track record. Most of them ask for your
+      contacts, fingerprint your device for ad networks, and quietly broker
+      your phone activity to data brokers. Ringdocket does none of that.
+      Here's the actual posture, with the controls named so you can verify
+      it.
+    </p>
+
+    <h2>Data handling</h2>
+    <ul class="rules">
+      <li>
+        <strong>Row-level security on every Supabase table.</strong> Default
+        deny, granted selectively. Any new migration that adds a table ships
+        with <code class="mono">ALTER TABLE ... ENABLE ROW LEVEL SECURITY</code>
+        in the same file or it doesn't merge.
+      </li>
+      <li>
+        <strong>Service-role keys are server-side only.</strong> They never
+        ship in the iOS bundle, never run in the browser, and never appear in
+        a client-readable env var. Privileged writes happen inside Cloudflare
+        Workers behind JWT verification.
+      </li>
+      <li>
+        <strong>User report notes are filtered for PII before write.</strong>
+        Worker-layer regex strips E.164 phone patterns and runs a profanity
+        filter before anything hits Postgres. Notes never render on public
+        pages or analytics surfaces.
+      </li>
+      <li>
+        <strong>The full IP is dropped after 30 days.</strong> Only the /24
+        subnet is retained, used for corroboration de-duplication.
+      </li>
+    </ul>
+
+    <h2>Authentication</h2>
+    <ul class="rules">
+      <li>
+        <strong>Supabase magic-link sign-in.</strong> No passwords stored,
+        anywhere. The login link is single-use and expires.
+      </li>
+      <li>
+        <strong>JWT verification on every authenticated worker route.</strong>
+        The token is checked against the Supabase JWKS on each request &mdash;
+        no shared session caches across users.
+      </li>
+      <li>
+        <strong>Sessions are short-lived and refresh on activity.</strong>
+        A stolen token's window of usefulness is hours, not days.
+      </li>
+    </ul>
+
+    <h2>iOS app</h2>
+    <ul class="rules">
+      <li>
+        <strong>Tokens live in the Keychain.</strong> Authenticated state is
+        confined to the main app target &mdash; <em>not</em> the App Group.
+        The Call Directory Extension cannot read your auth token.
+      </li>
+      <li>
+        <strong>Device fingerprint is a UUID v4 in the Keychain.</strong>
+        Generated locally at first launch. Reinstalling the app generates a
+        new UUID. We do not use Apple's IDFA, and we do not show the App
+        Tracking Transparency prompt because we don't need it.
+      </li>
+      <li>
+        <strong>No call recording.</strong> Audio never leaves your device.
+        There is no microphone access requested by the app.
+      </li>
+      <li>
+        <strong>No contacts access.</strong> The block list is delivered to
+        iOS through the Call Directory Extension; matching happens on-device.
+      </li>
+      <li>
+        <strong>No third-party tracking SDKs.</strong> No Facebook SDK, no
+        AppsFlyer, no Branch, no advertising attribution networks. Crash and
+        product analytics use pseudonymous IDs only, with phone numbers and
+        UUIDs scrubbed before transmission.
+      </li>
+    </ul>
+
+    <h2>Infrastructure</h2>
+    <ul class="rules">
+      <li>
+        <strong>TLS for all traffic.</strong> Device to API, API to Supabase,
+        Supabase to subprocessors.
+      </li>
+      <li>
+        <strong>Cloudflare rate limiting</strong> on abuse-prone endpoints
+        (signup, report submission, delist form).
+      </li>
+      <li>
+        <strong>Point-in-Time Recovery</strong> on the primary database.
+      </li>
+      <li>
+        <strong>Audit logs in R2</strong> for forensic review of administrative
+        actions.
+      </li>
+    </ul>
+
+    <h2>What we don't do</h2>
+    <p>
+      No call recording. No on-device or cloud-side machine learning over
+      your personal data. No third-party tracking SDKs. No contacts upload.
+      No GPS or precise location. No selling, sharing, or transferring
+      personal information to data brokers, advertisers, or any third party
+      for commercial purposes. The full statement is in the
+      <a href="/privacy">Privacy Policy</a>.
+    </p>
+
+    <h2>Vulnerability disclosure</h2>
+    <p>
+      If you've found a vulnerability in Ringdocket, email
+      <a href="mailto:security@ringdocket.com">security@ringdocket.com</a>
+      with a clear description and steps to reproduce. We respond within
+      72 hours. Please do not run automated scans against the production
+      domain &mdash; it triggers our rate limiters and creates noise that
+      buries real reports.
+    </p>
+  </main>
+</Base>
+
+<style>
+  .prose-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .kicker {
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1.25rem;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2.5rem 0 1rem;
+    color: var(--ink-primary);
+  }
+  .lead {
+    font-family: 'Newsreader';
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 60ch;
+    margin: 0 0 2rem;
+  }
+  p {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  .rules {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 1rem;
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-secondary);
+    max-width: 64ch;
+  }
+  .rules li {
+    padding: 0.6875rem 0 0.6875rem 1.25rem;
+    border-bottom: 1px dotted var(--rule-subtle);
+    position: relative;
+  }
+  .rules li:last-child {
+    border-bottom: none;
+  }
+  .rules li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink-byline);
+    font-family: 'JetBrains Mono';
+  }
+  .rules strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+  a {
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  a:hover {
+    border-bottom-color: var(--ink-primary);
+  }
+  code,
+  .mono {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    background: var(--surface-inset);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    color: var(--ink-mono);
+  }
+</style>

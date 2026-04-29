@@ -1,0 +1,439 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="CAN-SPAM Compliance — Ringdocket"
+  description="How Ringdocket complies with the US CAN-SPAM Act of 2003. Footer requirements, opt-out mechanics, and unsubscribe groups."
+>
+  <main class="prose-page">
+    <p class="kicker mono">Legal</p>
+    <h1>CAN-SPAM Compliance</h1>
+    <p class="meta mono">
+      Effective date: 2026-04-29 &middot; Version 1.0 &middot;
+      Sender: Ringdocket, a product of LIGHTHOUSE 27 LLC.
+    </p>
+
+    <aside class="callout callout-info">
+      <p class="callout-title">Who this document is for</p>
+      <p>
+        Anyone writing, scheduling, or configuring email from Ringdocket.
+        It also serves as our public statement of how we comply with the US
+        federal CAN-SPAM Act of 2003 (15 U.S.C. &sect;7701 et seq.) and the
+        implementing rule at 16 C.F.R. &sect;316.
+      </p>
+    </aside>
+
+    <aside class="callout callout-todo">
+      <p class="callout-title">[TODO: Add LIGHTHOUSE 27 LLC mailing address before App Store submission]</p>
+      <p>
+        Every email we send must carry a valid physical postal address. The
+        production address must be substituted into our email templates and
+        wherever <code>[PHYSICAL_ADDRESS]</code> appears below before any
+        marketing send goes out.
+      </p>
+    </aside>
+
+    <h2>1. The four non-negotiables</h2>
+    <p>Every email we send &mdash; marketing or transactional &mdash; contains:</p>
+    <ol>
+      <li>
+        <strong>Accurate, non-misleading From, Reply-To, and Subject fields.</strong>
+        The From name is <code class="mono">Ringdocket</code>. The From
+        address is a monitored mailbox at ringdocket.com. Subject lines
+        describe the actual content.
+      </li>
+      <li>
+        <strong>Clear identification that the email is an advertisement when applicable.</strong>
+        Transactional emails (account confirmations, receipts, password
+        resets) are exempt from this requirement. Marketing emails (digest,
+        impact report, Takedown Report reminders, Founding Flagger launch
+        communications, product announcements) are commercial and are
+        identified as such.
+      </li>
+      <li>
+        <strong>A physical postal address.</strong> See &sect;2 below. This
+        is a hard CAN-SPAM requirement &mdash; not optional, not conditional
+        on email type. Every email, including transactional, carries this
+        address.
+      </li>
+      <li>
+        <strong>A functioning opt-out mechanism.</strong> For marketing
+        email, a one-click unsubscribe link that remains operational for at
+        least 30 days after the email is sent. We use SendGrid's unsubscribe
+        group feature so users can opt out of one category (for example, the
+        weekly digest) without killing all email.
+      </li>
+    </ol>
+
+    <h2>2. Physical address block</h2>
+    <p>
+      A physical postal address appears at the bottom of every Ringdocket
+      email:
+    </p>
+    <pre class="block"><code>Ringdocket &middot; LIGHTHOUSE 27 LLC
+[PHYSICAL_ADDRESS]</code></pre>
+    <aside class="callout callout-warn">
+      <p class="callout-title">CAN-SPAM hard requirement</p>
+      <p>
+        15 U.S.C. &sect;7704(a)(5)(A)(iii) requires a "valid physical postal
+        address of the sender" in every commercial email. Removing this
+        block, leaving it blank, or substituting a PO Box that is not
+        registered with USPS for the sender is a violation. A registered
+        agent address or a USPS-registered PO Box satisfies the requirement.
+      </p>
+    </aside>
+
+    <h2>3. "You received this email because&hellip;" block</h2>
+    <p>
+      Above the physical address block, every email explains why the
+      recipient received it. We use the variant matched to the email type.
+    </p>
+
+    <h3>3.1 Weekly "Scam of the Week" digest</h3>
+    <pre class="block"><code>You received this email because you subscribed to the Ringdocket weekly
+digest. We send one of these every Friday morning highlighting the most
+reported scam campaign of the week.
+
+Unsubscribe from the weekly digest: &lbrace;&lbrace;unsubscribe_url_group_digest&rbrace;&rbrace;
+Manage all email preferences: https://ringdocket.com/account/email-preferences</code></pre>
+
+    <h3>3.2 Monthly personal impact report</h3>
+    <pre class="block"><code>You received this email because you have a Ringdocket paid subscription
+and monthly impact reports are a benefit of your plan. This report
+summarizes how your reporting activity contributed to the block list over
+the past 30 days.
+
+Unsubscribe from monthly impact reports: &lbrace;&lbrace;unsubscribe_url_group_impact&rbrace;&rbrace;
+Manage all email preferences: https://ringdocket.com/account/email-preferences</code></pre>
+
+    <h3>3.3 Quarterly Takedown Report reminder</h3>
+    <pre class="block"><code>You received this email because your quarterly Ringdocket Takedown
+Report is ready. This report shows the campaigns you helped flag and
+the takedowns those reports contributed to.
+
+Unsubscribe from quarterly Takedown Report notices: &lbrace;&lbrace;unsubscribe_url_group_takedown&rbrace;&rbrace;
+Manage all email preferences: https://ringdocket.com/account/email-preferences</code></pre>
+
+    <h3>3.4 Transactional email</h3>
+    <pre class="block"><code>You received this email because of account activity on your Ringdocket
+account. Transactional emails are not subject to marketing opt-out
+because they are required to operate your account.
+
+If you did not initiate this activity, please email security@ringdocket.com
+immediately.
+
+Manage marketing email preferences: https://ringdocket.com/account/email-preferences</code></pre>
+
+    <h3>3.5 Product announcement</h3>
+    <pre class="block"><code>You received this email because you created a Ringdocket account and
+opted in to product announcements. These emails go out sparingly &mdash; we
+won't pile on.
+
+Unsubscribe from product announcements: &lbrace;&lbrace;unsubscribe_url_group_announcements&rbrace;&rbrace;
+Manage all email preferences: https://ringdocket.com/account/email-preferences</code></pre>
+
+    <h2>4. Sender identification</h2>
+    <p>
+      Between the main email body and the "You received this email
+      because&hellip;" block, every email carries:
+    </p>
+    <pre class="block"><code>Sent by Ringdocket, a product of LIGHTHOUSE 27 LLC.
+Questions? Reply to this email or contact support@ringdocket.com.</code></pre>
+
+    <h2>5. Full footer assembly (weekly digest example)</h2>
+    <pre class="block"><code>---
+Sent by Ringdocket, a product of LIGHTHOUSE 27 LLC.
+Questions? Reply to this email or contact support@ringdocket.com.
+
+You received this email because you subscribed to the Ringdocket weekly
+digest. We send one of these every Friday morning highlighting the most
+reported scam campaign of the week.
+
+Unsubscribe from the weekly digest: &lbrace;&lbrace;unsubscribe_url_group_digest&rbrace;&rbrace;
+Manage all email preferences: https://ringdocket.com/account/email-preferences
+
+Ringdocket &middot; LIGHTHOUSE 27 LLC
+[PHYSICAL_ADDRESS]</code></pre>
+
+    <h2>6. What we never do</h2>
+    <p>
+      The following will create a CAN-SPAM violation, a deliverability
+      problem, or both. None of them ship in any Ringdocket email:
+    </p>
+    <ul>
+      <li><strong>Misleading subject lines.</strong> No "Your refund is ready" when it isn't, no fake "RE:" prefixes, no subject lines that disguise marketing as personal mail. 15 U.S.C. &sect;7704(a)(2).</li>
+      <li><strong>False From, To, or Reply-To fields.</strong> Ringdocket is always the identified sender. We never impersonate a user or a third party.</li>
+      <li><strong>Hidden unsubscribe links.</strong> The link is plainly visible &mdash; not behind an image, a CAPTCHA, or a multi-step flow. 15 U.S.C. &sect;7704(a)(3).</li>
+      <li><strong>Login walls or confirmation emails to unsubscribe.</strong> Unsubscribe is processable from the email itself, in one click.</li>
+      <li><strong>Fees or required personal information to unsubscribe.</strong> No charges, no questionnaires.</li>
+      <li><strong>Sending marketing email more than 10 business days after an opt-out.</strong> SendGrid's unsubscribe group suppression handles this automatically.</li>
+      <li><strong>Selling, trading, or transferring the email addresses of users who opted out.</strong> Ever.</li>
+      <li><strong>Sending commercial email to addresses we did not collect with documented consent.</strong> No purchased lists. No scraped lists. No "we found you on LinkedIn" cold email from the product domain.</li>
+      <li><strong>Omitting the physical address block.</strong> See &sect;2.</li>
+      <li><strong>Sending from a sender domain that is not authenticated with SPF, DKIM, and DMARC.</strong> Required for deliverability and to satisfy 2024 Google/Yahoo bulk-sender rules.</li>
+      <li><strong>Tracking pixels from non-HTTPS or third-party ad-tech vendors.</strong> SendGrid's first-party tracking is fine; advertising-style retargeting pixels are not.</li>
+    </ul>
+
+    <h2>7. Unsubscribe groups</h2>
+    <p>
+      Ringdocket maintains separate unsubscribe groups in SendGrid so a user
+      who wants the weekly digest but not the monthly impact report (or vice
+      versa) can opt out of one without losing the other. This is the best
+      practice for preserving list health and reducing "mark as spam"
+      rates.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Group</th>
+            <th>Controls</th>
+            <th>Default on signup</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Weekly Scam Digest</strong></td><td>The Friday-morning "Scam of the Week" email</td><td>Opt-in required (unchecked at account creation)</td></tr>
+          <tr><td><strong>Monthly Impact Report</strong></td><td>Personal stats recap sent on the 1st of each month</td><td>Opt-in default ON for paid subscribers (tied to paid-tier value)</td></tr>
+          <tr><td><strong>Quarterly Takedown Report</strong></td><td>Reminder email when a new Takedown Report PDF is ready</td><td>Opt-in default ON for paid subscribers</td></tr>
+          <tr><td><strong>Product Announcements</strong></td><td>Launch communications, feature releases, Founding Flagger updates</td><td>Opt-in required (unchecked at account creation)</td></tr>
+          <tr><td><em>Transactional</em></td><td>Auth, receipts, password resets, security alerts</td><td>Cannot be opted out &mdash; required for account operation</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Implementation notes for engineering: every marketing send sets the
+      <code class="mono">asm.group_id</code> field to the matching group;
+      SendGrid inserts the group-specific unsubscribe URL via the
+      <code class="mono">&lbrace;&lbrace;unsubscribe_url&rbrace;&rbrace;</code>
+      substitution tag. Transactional sends never set
+      <code class="mono">asm.group_id</code>, so the marketing suppression
+      list cannot block a password reset. We enable the
+      <code class="mono">List-Unsubscribe</code> header (RFC 8058) and the
+      <code class="mono">List-Unsubscribe-Post: List-Unsubscribe=One-Click</code>
+      header on every marketing send.
+    </p>
+
+    <h2>8. Preference center</h2>
+    <p>
+      The "Manage all email preferences" link in every footer points to
+      <a href="https://ringdocket.com/account/email-preferences" rel="noopener">https://ringdocket.com/account/email-preferences</a>,
+      a logged-in page that shows the four marketing groups above with
+      toggle switches. Users can opt out of any subset without affecting the
+      others. A "turn off all marketing email" button is also provided.
+    </p>
+
+    <h2>9. Quick reference</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Element</th><th>Required?</th><th>Source</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>From: Ringdocket &lt;noreply@ringdocket.com&gt;</td><td>Yes</td><td>Sender identity</td></tr>
+          <tr><td>Reply-To: monitored mailbox</td><td>Yes</td><td>Must be real and monitored</td></tr>
+          <tr><td>Subject: descriptive, non-misleading</td><td>Yes</td><td>Editor judgment plus review</td></tr>
+          <tr><td>Unsubscribe link (marketing)</td><td>Yes</td><td>SendGrid unsubscribe group</td></tr>
+          <tr><td>List-Unsubscribe header</td><td>Yes</td><td>SendGrid auto on group sends</td></tr>
+          <tr><td>Preference center link</td><td>Yes</td><td>ringdocket.com/account/email-preferences</td></tr>
+          <tr><td>Physical address</td><td>Yes (every email)</td><td>&sect;2 above</td></tr>
+          <tr><td>"Why you received this"</td><td>Yes (every email)</td><td>&sect;3 variants above</td></tr>
+          <tr><td>"Advertisement" label</td><td>Only if pure marketing</td><td>Editor judgment</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>10. Reporting a violation</h2>
+    <p>
+      If you received an email from Ringdocket that you believe violates
+      CAN-SPAM &mdash; missing footer, broken unsubscribe, suspect content
+      &mdash; email
+      <a href="mailto:legal@ringdocket.com">legal@ringdocket.com</a> with a
+      copy of the message and the full headers. We treat these reports as
+      P0 and investigate same-business-day.
+    </p>
+
+    <p class="endmark">
+      <em>End of CAN-SPAM compliance statement. For the full Privacy Policy
+      see <a href="/privacy">/privacy</a>; for the Terms of Service see
+      <a href="/terms">/terms</a>.</em>
+    </p>
+  </main>
+</Base>
+
+<style>
+  .prose-page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem) 5rem;
+  }
+  .kicker {
+    font-size: 0.75rem;
+    color: var(--accent-signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.875rem;
+  }
+  h1 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: clamp(2rem, 4.5vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink-primary);
+    margin: 0 0 1rem;
+  }
+  h2 {
+    font-family: 'Bricolage Grotesque';
+    font-weight: 700;
+    font-size: 1.375rem;
+    margin: 2.5rem 0 1rem;
+    color: var(--ink-primary);
+    line-height: 1.15;
+  }
+  h3 {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 1.0625rem;
+    margin: 1.5rem 0 0.625rem;
+    color: var(--ink-primary);
+  }
+  .meta {
+    font-size: 0.75rem;
+    color: var(--ink-byline);
+    margin: 0 0 2rem;
+    line-height: 1.55;
+  }
+  p, li {
+    font-family: 'Newsreader';
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-secondary);
+  }
+  p {
+    max-width: 68ch;
+    margin: 0 0 1rem;
+  }
+  ul, ol {
+    max-width: 68ch;
+    margin: 0 0 1.25rem;
+    padding-left: 1.25rem;
+  }
+  li {
+    margin: 0.375rem 0;
+  }
+  strong {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+  a {
+    color: var(--ink-primary);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  a:hover {
+    border-bottom-color: var(--ink-primary);
+  }
+  code,
+  .mono {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    background: var(--surface-inset);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    color: var(--ink-mono);
+  }
+  pre.block {
+    font-family: 'JetBrains Mono';
+    font-size: 0.8125rem;
+    background: var(--surface-inset);
+    color: var(--ink-mono);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    line-height: 1.55;
+    margin: 0 0 1.5rem;
+  }
+  pre.block code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin: 0 0 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter Tight';
+    font-size: 0.875rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid var(--rule-subtle);
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-inset);
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+  td {
+    color: var(--ink-secondary);
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .callout {
+    border-left: 3px solid var(--rule);
+    padding: 1rem 1.25rem;
+    background: var(--surface-raised);
+    border-radius: 0 8px 8px 0;
+    margin: 0 0 2rem;
+  }
+  .callout p {
+    margin: 0 0 0.5rem;
+    max-width: none;
+  }
+  .callout p:last-child {
+    margin-bottom: 0;
+  }
+  .callout-title {
+    font-family: 'Inter Tight';
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--ink-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .callout-info {
+    border-left-color: var(--ink-mono);
+  }
+  .callout-warn {
+    border-left-color: var(--destructive);
+    background: color-mix(in srgb, var(--destructive) 4%, var(--surface-raised));
+  }
+  .callout-warn .callout-title {
+    color: var(--destructive);
+  }
+  .callout-todo {
+    border-left-color: var(--accent-signal);
+    background: color-mix(in srgb, var(--accent-signal) 6%, var(--surface-raised));
+  }
+  .callout-todo .callout-title {
+    color: var(--accent-signal);
+  }
+  .endmark {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule-subtle);
+    font-size: 0.875rem;
+    color: var(--ink-byline);
+  }
+</style>
