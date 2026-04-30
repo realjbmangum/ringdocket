@@ -26,6 +26,7 @@ import { handleMyPendingReports } from './routes/my-pending-reports';
 import { handleMyStats } from './routes/my-stats';
 import { handleNetworkStats } from './routes/network-stats';
 import { handleSimulateCorroboration } from './routes/simulate-corroboration';
+import { handleAdminFastTrack } from './routes/admin-fast-track';
 import { handleCreateCheckoutSession } from './routes/create-checkout-session';
 import { handleStripeWebhook } from './routes/stripe-webhook';
 import { handleBillingPortal } from './routes/billing-portal';
@@ -187,6 +188,22 @@ export default {
         return await handleDelistAppeal(request, env);
       } catch (err) {
         console.error('handleDelistAppeal unhandled error', err);
+        return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
+      }
+    }
+
+    // POST /api/admin/fast-track — session-gated admin corroborate
+    if (url.pathname === '/api/admin/fast-track') {
+      if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: { Allow: 'POST, OPTIONS' },
+        });
+      }
+      try {
+        return await handleAdminFastTrack(request, env);
+      } catch (err) {
+        console.error('handleAdminFastTrack unhandled error', err);
         return jsonError(500, 'internal', 'Unexpected server error', undefined, request);
       }
     }

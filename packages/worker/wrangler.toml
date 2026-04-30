@@ -47,6 +47,7 @@ BLOCKLIST_PUBLIC_URL = "https://blocklist.ringdocket.com"
 #   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 #   wrangler secret put FTC_API_KEY              # api.data.gov key, 1000/hr
 #   wrangler secret put ADMIN_TOKEN              # any random string, gates /_admin/*
+#   wrangler secret put ADMIN_USER_EMAILS        # comma-separated emails allowed on /api/admin/*
 #   wrangler secret put STRIPE_SECRET_KEY
 #   wrangler secret put STRIPE_WEBHOOK_SECRET
 #   wrangler secret put REVENUECAT_WEBHOOK_SECRET

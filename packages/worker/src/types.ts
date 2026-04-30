@@ -28,6 +28,13 @@ export interface Env {
   SENDGRID_API_KEY?: string;
   FTC_API_KEY?: string;
   ADMIN_TOKEN?: string;
+  /**
+   * Comma-separated allowlist of Supabase user emails permitted to call
+   * /api/admin/* routes. Auth still requires a valid Supabase JWT — this
+   * allowlist is the second factor on top of the session check. Empty
+   * string or unset disables the routes.
+   */
+  ADMIN_USER_EMAILS?: string;
 
   // Bindings
   RATE_LIMIT: KVNamespace;

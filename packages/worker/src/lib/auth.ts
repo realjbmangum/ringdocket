@@ -39,3 +39,18 @@ export async function verifyJwtAndGetUserId(
   }
   return data.user.id;
 }
+
+/**
+ * Verify a Supabase JWT and return both id + email. Used by admin-gated
+ * routes that need the email to check against an allowlist.
+ */
+export async function verifyJwtAndGetUser(
+  anonClient: SupabaseClient,
+  token: string,
+): Promise<{ id: string; email: string }> {
+  const { data, error } = await anonClient.auth.getUser(token);
+  if (error || !data?.user?.id || !data.user.email) {
+    throw new UnauthorizedError('invalid token');
+  }
+  return { id: data.user.id, email: data.user.email };
+}

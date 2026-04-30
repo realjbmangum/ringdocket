@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getBrowserSupabase } from '../../lib/supabase';
 import {
   formatPhone,
@@ -10,6 +10,11 @@ import {
 const WORKER_URL = ((import.meta.env.PUBLIC_WORKER_URL as string) ?? '')
   .trim()
   .replace(/\/+$/, '');
+
+// Allowlist mirror of the worker's ADMIN_USER_EMAILS env var. Frontend
+// uses this only to decide whether to render the admin shelf — the worker
+// is the actual authority and will 403 anyone not on its allowlist.
+const ADMIN_EMAILS = ['bmangum1+ringdocket@gmail.com'];
 
 interface PromotedReport {
   id: string;
@@ -44,70 +49,138 @@ type State =
       promoted: PromotedReport[];
       pending: PendingReport[];
       summary: Summary;
+      isAdmin: boolean;
     };
+
+type FastTrackState =
+  | { kind: 'idle' }
+  | { kind: 'pending' }
+  | { kind: 'success'; message: string }
+  | { kind: 'error'; message: string };
 
 export default function MyImpactTimeline() {
   const [state, setState] = useState<State>({ kind: 'loading' });
+  // Per-row fast-track UI state, keyed by number (E.164).
+  const [fastTrack, setFastTrack] = useState<Record<string, FastTrackState>>({});
+
+  const loadData = useCallback(async (signal?: { active: boolean }) => {
+    const supabase = getBrowserSupabase();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      if (!signal || signal.active)
+        setState({ kind: 'error', message: 'Session expired — refresh to sign in.' });
+      return;
+    }
+
+    const email = session.user.email ?? '';
+    const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+
+    const [promotedRes, pendingRes] = await Promise.all([
+      supabase
+        .from('reports')
+        .select('id, number, category, submitted_at, corroboration_sequence')
+        .order('submitted_at', { ascending: false })
+        .limit(200),
+      fetch(`${WORKER_URL}/api/my-pending-reports`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      }),
+    ]);
+
+    if (signal && !signal.active) return;
+    if (promotedRes.error) {
+      setState({ kind: 'error', message: promotedRes.error.message });
+      return;
+    }
+    if (!pendingRes.ok) {
+      setState({
+        kind: 'error',
+        message: `Pending reports endpoint returned HTTP ${pendingRes.status}`,
+      });
+      return;
+    }
+
+    const pendingBody = (await pendingRes.json()) as { reports: PendingReport[] };
+    const promoted = (promotedRes.data ?? []) as PromotedReport[];
+    const firstFlags = promoted.filter((r) => r.corroboration_sequence === 1).length;
+
+    setState({
+      kind: 'ready',
+      promoted,
+      pending: pendingBody.reports,
+      summary: {
+        promotedTotal: promoted.length,
+        firstFlags,
+        laterFlags: promoted.length - firstFlags,
+        pendingTotal: pendingBody.reports.length,
+      },
+      isAdmin,
+    });
+  }, []);
 
   useEffect(() => {
-    const supabase = getBrowserSupabase();
-    let active = true;
-
-    (async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
-        if (active)
-          setState({ kind: 'error', message: 'Session expired — refresh to sign in.' });
-        return;
-      }
-
-      const [promotedRes, pendingRes] = await Promise.all([
-        supabase
-          .from('reports')
-          .select('id, number, category, submitted_at, corroboration_sequence')
-          .order('submitted_at', { ascending: false })
-          .limit(200),
-        fetch(`${WORKER_URL}/api/my-pending-reports`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        }),
-      ]);
-
-      if (!active) return;
-      if (promotedRes.error) {
-        setState({ kind: 'error', message: promotedRes.error.message });
-        return;
-      }
-      if (!pendingRes.ok) {
-        setState({
-          kind: 'error',
-          message: `Pending reports endpoint returned HTTP ${pendingRes.status}`,
-        });
-        return;
-      }
-
-      const pendingBody = (await pendingRes.json()) as { reports: PendingReport[] };
-      const promoted = (promotedRes.data ?? []) as PromotedReport[];
-      const firstFlags = promoted.filter((r) => r.corroboration_sequence === 1).length;
-
-      setState({
-        kind: 'ready',
-        promoted,
-        pending: pendingBody.reports,
-        summary: {
-          promotedTotal: promoted.length,
-          firstFlags,
-          laterFlags: promoted.length - firstFlags,
-          pendingTotal: pendingBody.reports.length,
-        },
-      });
-    })();
-
+    const signal = { active: true };
+    void loadData(signal);
     return () => {
-      active = false;
+      signal.active = false;
     };
-  }, []);
+  }, [loadData]);
+
+  const handleFastTrack = useCallback(
+    async (number: string) => {
+      setFastTrack((prev) => ({ ...prev, [number]: { kind: 'pending' } }));
+      try {
+        const supabase = getBrowserSupabase();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) {
+          setFastTrack((prev) => ({
+            ...prev,
+            [number]: { kind: 'error', message: 'Session expired.' },
+          }));
+          return;
+        }
+        const res = await fetch(`${WORKER_URL}/api/admin/fast-track`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ number }),
+        });
+        const body = (await res.json().catch(() => ({}))) as {
+          error?: { message?: string };
+          alreadyCorroborated?: boolean;
+          alreadyMetThreshold?: boolean;
+          added?: number;
+        };
+        if (!res.ok) {
+          setFastTrack((prev) => ({
+            ...prev,
+            [number]: {
+              kind: 'error',
+              message: body.error?.message ?? `HTTP ${res.status}`,
+            },
+          }));
+          return;
+        }
+        const message = body.alreadyCorroborated
+          ? 'Already corroborated'
+          : body.alreadyMetThreshold
+            ? 'At threshold — refreshing'
+            : `Promoted (+${body.added ?? 0} synthetic)`;
+        setFastTrack((prev) => ({ ...prev, [number]: { kind: 'success', message } }));
+        // Refresh the timeline so this row moves out of pending.
+        await loadData();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Network error';
+        setFastTrack((prev) => ({ ...prev, [number]: { kind: 'error', message } }));
+      }
+    },
+    [loadData],
+  );
 
   if (state.kind === 'loading') {
     return (
@@ -127,7 +200,7 @@ export default function MyImpactTimeline() {
     );
   }
 
-  const { promoted, pending, summary } = state;
+  const { promoted, pending, summary, isAdmin } = state;
   const nothingYet = promoted.length === 0 && pending.length === 0;
 
   return (
@@ -173,6 +246,7 @@ export default function MyImpactTimeline() {
                 {pending.map((r) => {
                   const remaining = Math.max(r.threshold - r.corroborationCount, 0);
                   const expiresIn = relativeTime(r.expiresAt);
+                  const ft = fastTrack[r.number] ?? { kind: 'idle' };
                   return (
                     <li key={r.id} className="impact-row impact-row-pending">
                       <div className="impact-row-main">
@@ -181,6 +255,24 @@ export default function MyImpactTimeline() {
                           {formatCategory(r.category)} · filed{' '}
                           {formatShortTimestamp(r.submittedAt)} · expires {expiresIn}
                         </span>
+                        {isAdmin && (
+                          <div className="impact-admin-row">
+                            <button
+                              type="button"
+                              className="impact-fasttrack-btn"
+                              onClick={() => handleFastTrack(r.number)}
+                              disabled={ft.kind === 'pending'}
+                            >
+                              {ft.kind === 'pending' ? 'Fast-tracking…' : 'Fast-track to corroborated'}
+                            </button>
+                            {ft.kind === 'success' && (
+                              <span className="impact-fasttrack-ok">{ft.message}</span>
+                            )}
+                            {ft.kind === 'error' && (
+                              <span className="impact-fasttrack-err">{ft.message}</span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="impact-pending-state">
                         <span className="impact-pending-label">
