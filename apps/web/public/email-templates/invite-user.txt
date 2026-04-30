@@ -1,0 +1,20 @@
+Ringdocket — Invitation
+
+Someone invited you to Ringdocket — the public ledger for spam calls.
+Tap below to accept and create your account.
+
+Ringdocket is free. Three accounts confirming the same number flags it
+for everyone.
+
+Accept invitation:
+{{ .ConfirmationURL }}
+
+Heads up: this is a one-time invitation link. Once you accept, it can't
+be reused.
+
+—
+Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+This is a transactional invitation email — no unsubscribe needed.
+If you weren't expecting this, ignore it or email security@ringdocket.com.

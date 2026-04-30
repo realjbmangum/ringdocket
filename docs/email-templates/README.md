@@ -4,12 +4,28 @@ Branded HTML email templates for Ringdocket. Built to preview in the browser tod
 
 ## What's here
 
+### Supabase auth templates (production HTML)
+
+These are the 6 templates Supabase sends from the Authentication → Email Templates dashboard. Each lives as production-ready HTML with Supabase placeholder tokens preserved. Paste each into the matching Supabase template slot — no build step or "view source" needed.
+
+| Supabase slot | Production HTML | Plain-text | Tokens used | Subject |
+|---------------|-----------------|------------|-------------|---------|
+| Magic Link | `apps/web/public/email-templates/magic-link.html` | `magic-link.txt` | `{{ .ConfirmationURL }}` | Your Ringdocket sign-in link |
+| Confirm sign up | `apps/web/public/email-templates/confirm-signup.html` | `confirm-signup.txt` | `{{ .ConfirmationURL }}` | Confirm your Ringdocket sign-up |
+| Invite user | `apps/web/public/email-templates/invite-user.html` | `invite-user.txt` | `{{ .ConfirmationURL }}` | You're invited to Ringdocket |
+| Change email address | `apps/web/public/email-templates/change-email.html` | `change-email.txt` | `{{ .ConfirmationURL }}`, `{{ .NewEmail }}` | Confirm your new Ringdocket email |
+| Reset password | `apps/web/public/email-templates/reset-password.html` | `reset-password.txt` | `{{ .ConfirmationURL }}` | Reset your Ringdocket password |
+| Reauthentication | `apps/web/public/email-templates/reauthentication.html` | `reauthentication.txt` | `{{ .Token }}` | Your Ringdocket verification code |
+
+### Transactional (SendGrid) templates
+
+Custom emails sent from a Cloudflare Worker via SendGrid in Phase 5. Built as Astro previews with realistic dummy data. The `magic-link.astro` Astro preview is also kept for visual review.
+
 | Template | Source (Astro) | Plain-text fallback | Subject |
 |----------|----------------|---------------------|---------|
-| Magic Link | `apps/web/src/pages/email-preview/magic-link.astro` | `apps/web/public/email-templates/magic-link.txt` | Your Ringdocket sign-in link |
-| Welcome | `apps/web/src/pages/email-preview/welcome.astro` | `apps/web/public/email-templates/welcome.txt` | Welcome to the ledger |
-| Weekly Digest | `apps/web/src/pages/email-preview/weekly-digest.astro` | `apps/web/public/email-templates/weekly-digest.txt` | Public Enemy #1 — week of [date] |
-| Monthly Impact | `apps/web/src/pages/email-preview/monthly-impact.astro` | `apps/web/public/email-templates/monthly-impact.txt` | Your Ringdocket impact — [Month] |
+| Welcome | `apps/web/src/pages/email-preview/welcome.astro` | `welcome.txt` | Welcome to the ledger |
+| Weekly Digest | `apps/web/src/pages/email-preview/weekly-digest.astro` | `weekly-digest.txt` | Public Enemy #1 — week of [date] |
+| Monthly Impact | `apps/web/src/pages/email-preview/monthly-impact.astro` | `monthly-impact.txt` | Your Ringdocket impact — [Month] |
 | Index (admin) | `apps/web/src/pages/email-preview/index.astro` | — | (not an email — directory page) |
 
 ## How to preview
@@ -22,28 +38,23 @@ npm run dev
 Then visit:
 
 - **`http://localhost:4321/email-preview`** — admin index, links to everything
-- `http://localhost:4321/email-preview/magic-link`
-- `http://localhost:4321/email-preview/welcome`
-- `http://localhost:4321/email-preview/weekly-digest`
-- `http://localhost:4321/email-preview/monthly-impact`
+- Each Supabase template's HTML is at `http://localhost:4321/email-templates/<name>.html` (open in browser to view)
+- Astro previews for transactional emails are at `http://localhost:4321/email-preview/<name>`
 
-The preview pages render the same inline-styled HTML the real email will be — open dev tools and "View Source" to grab the exact HTML for pasting into Supabase or SendGrid.
+## How to install Supabase templates
 
-## How to install the magic-link template into Supabase
+For each of the 6 templates above:
 
-The magic-link template overrides Supabase's default sign-in email.
+1. Open the production HTML file in your editor or browser (e.g., `apps/web/public/email-templates/magic-link.html`)
+2. Copy the entire file contents
+3. Open Supabase Dashboard → **Authentication** → **Email Templates** → pick the matching slot (Magic Link, Confirm sign up, Invite user, Change Email Address, Reset Password, Reauthentication)
+4. Set the **Subject** to the value in the table above
+5. Paste the HTML into the **Message body**
+6. Confirm the placeholder tokens (`{{ .ConfirmationURL }}`, `{{ .NewEmail }}`, or `{{ .Token }}`) appear in the body — Supabase substitutes these at send time
+7. Save
+8. Send a test (Magic Link is the easiest one to test — request a sign-in link to your own address)
 
-1. `npm run dev` (or `npm run build && npm run preview`)
-2. Visit `http://localhost:4321/email-preview/magic-link`
-3. View source on the rendered page (Cmd+Opt+U on Mac / Ctrl+U on Windows)
-4. Copy the entire HTML
-5. Open Supabase Dashboard → **Authentication** → **Email Templates** → **Magic Link**
-6. Set the **Subject** to: `Your Ringdocket sign-in link`
-7. Paste the HTML into the **Message body**
-8. Verify that `{{ .ConfirmationURL }}` is present (the preview file outputs the literal Supabase template tag when you load it without a query string — the inlined template variable is what Supabase substitutes at send time)
-9. Save and send a test message to yourself
-
-> **Important:** Supabase requires the `{{ .ConfirmationURL }}` token to appear in the body. The Astro file emits it directly when not in preview mode — the `isPreview` check just swaps in a sample URL when viewing in the browser, so make sure you copy the source from the deployed/built page (or strip the preview branch), not the dev preview.
+> **Note:** The HTML files in `public/email-templates/` are hand-written, NOT generated by `npm run build`. The Astro static build would bake placeholder URLs into the output and lose the `{{ .ConfirmationURL }}` tokens. Always paste from the `.html` files directly.
 
 ## Plain-text fallbacks
 
@@ -81,13 +92,24 @@ When you wire SendGrid templating, hand SendGrid both bodies (HTML + plaintext) 
 apps/web/
   src/pages/email-preview/
     index.astro            ← admin directory (not branded)
-    magic-link.astro
+    magic-link.astro       ← Astro preview kept for visual review
     welcome.astro
     weekly-digest.astro
     monthly-impact.astro
   public/email-templates/
+    magic-link.html        ← Supabase auth — production HTML (paste-ready)
     magic-link.txt
-    welcome.txt
+    confirm-signup.html
+    confirm-signup.txt
+    invite-user.html
+    invite-user.txt
+    change-email.html
+    change-email.txt
+    reset-password.html
+    reset-password.txt
+    reauthentication.html
+    reauthentication.txt
+    welcome.txt            ← SendGrid plain-text
     weekly-digest.txt
     monthly-impact.txt
 docs/email-templates/

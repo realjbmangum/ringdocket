@@ -1,0 +1,18 @@
+Ringdocket — Verification code
+
+Enter this code in the app to confirm a sensitive action.
+
+   {{ .Token }}
+
+Code expires in 60 minutes.
+
+If you didn't request this, change your password and email
+security@ringdocket.com immediately. Don't share this code with anyone —
+no Ringdocket employee will ever ask for it.
+
+—
+Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+This is a transactional security email — no unsubscribe needed.
+If you didn't request this code, email security@ringdocket.com.

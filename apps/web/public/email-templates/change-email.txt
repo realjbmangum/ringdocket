@@ -1,0 +1,19 @@
+Ringdocket — Confirm new email
+
+You requested to change the email on your Ringdocket account to
+{{ .NewEmail }}. Tap below to confirm. Until you do, the old address
+still works.
+
+If you didn't request this, ignore it. The change won't apply.
+
+Confirm new email:
+{{ .ConfirmationURL }}
+
+Heads up: this is a one-time confirmation link.
+
+—
+Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+This is a transactional account-change email — no unsubscribe needed.
+If you didn't request this, email security@ringdocket.com.

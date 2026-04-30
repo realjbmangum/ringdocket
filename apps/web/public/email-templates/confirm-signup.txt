@@ -1,0 +1,18 @@
+Ringdocket — Confirm sign-up
+
+Tap the link below to confirm your email and activate your Ringdocket
+account.
+
+If you didn't sign up, ignore this email. No account was created.
+
+Confirm and activate:
+{{ .ConfirmationURL }}
+
+Heads up: this is a one-time link. Tap it once and your email is verified.
+
+—
+Ringdocket — a product of LIGHTHOUSE 27 LLC
+[TODO: Add LIGHTHOUSE 27 LLC mailing address]
+
+This is a transactional sign-up email — no unsubscribe needed.
+If you didn't sign up, email security@ringdocket.com.

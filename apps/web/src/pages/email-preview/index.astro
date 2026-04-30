@@ -4,15 +4,64 @@
 //
 // Visit /email-preview on the dev server.
 
-const templates = [
+// Supabase auth templates — paste each HTML into Supabase Dashboard →
+// Authentication → Email Templates. Production HTML is hand-written
+// (lives in public/email-templates/*.html) so the {{ .ConfirmationURL }}
+// and {{ .Token }} placeholders survive the static build.
+const supabaseTemplates = [
   {
     name: 'Magic Link',
-    href: '/email-preview/magic-link',
+    html: '/email-templates/magic-link.html',
     txt: '/email-templates/magic-link.txt',
+    preview: '/email-preview/magic-link',
     subject: 'Your Ringdocket sign-in link',
-    audience: 'Anyone requesting a sign-in link (overrides Supabase default).',
-    blurb: 'Transactional. One CTA, one fallback URL, CAN-SPAM footer.',
+    audience: 'Anyone requesting a sign-in link.',
+    blurb: 'Primary auth flow. Magic link expires in 60 minutes.',
   },
+  {
+    name: 'Confirm Sign-up',
+    html: '/email-templates/confirm-signup.html',
+    txt: '/email-templates/confirm-signup.txt',
+    subject: 'Confirm your Ringdocket sign-up',
+    audience: 'New email/password signups awaiting confirmation.',
+    blurb: 'Triggered when enable_confirmations = true.',
+  },
+  {
+    name: 'Invite User',
+    html: '/email-templates/invite-user.html',
+    txt: '/email-templates/invite-user.txt',
+    subject: 'You’re invited to Ringdocket',
+    audience: 'Anyone receiving an admin inviteUserByEmail call.',
+    blurb: 'One-time invitation link.',
+  },
+  {
+    name: 'Change Email',
+    html: '/email-templates/change-email.html',
+    txt: '/email-templates/change-email.txt',
+    subject: 'Confirm your new Ringdocket email',
+    audience: 'Account owner changing their email address.',
+    blurb: 'Uses {{ .NewEmail }} in the body alongside {{ .ConfirmationURL }}.',
+  },
+  {
+    name: 'Reset Password',
+    html: '/email-templates/reset-password.html',
+    txt: '/email-templates/reset-password.txt',
+    subject: 'Reset your Ringdocket password',
+    audience: 'Anyone requesting a password reset (rare — primary auth is magic link).',
+    blurb: 'Branded fallback for the password-reset flow.',
+  },
+  {
+    name: 'Reauthentication',
+    html: '/email-templates/reauthentication.html',
+    txt: '/email-templates/reauthentication.txt',
+    subject: 'Your Ringdocket verification code',
+    audience: 'Sensitive actions requiring re-authentication.',
+    blurb: 'Token-based (not URL). Uses {{ .Token }}.',
+  },
+];
+
+// Custom transactional templates — sent through SendGrid (Phase 5).
+const transactionalTemplates = [
   {
     name: 'Welcome',
     href: '/email-preview/welcome',
@@ -85,6 +134,8 @@ const templates = [
         Replace every <code>[TODO: ...]</code> placeholder. The mailing address must be set before any email goes out (CAN-SPAM hard requirement). Unsubscribe URLs come from SendGrid&rsquo;s unsubscribe groups when that pipeline is wired.
       </div>
 
+      <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.06em;color:#57606a;margin:32px 0 8px;">Supabase auth templates</h2>
+      <p style="margin:0 0 12px;color:#57606a;font-size:13px;">Paste each HTML into Supabase Dashboard → Authentication → Email Templates. Production-ready (placeholders preserved).</p>
       <table>
         <thead>
           <tr>
@@ -95,7 +146,37 @@ const templates = [
           </tr>
         </thead>
         <tbody>
-          {templates.map((t) => (
+          {supabaseTemplates.map((t) => (
+            <tr>
+              <td><a class="name" href={t.html}>{t.name}</a></td>
+              <td><span class="subject">{t.subject}</span></td>
+              <td>
+                <div class="audience">{t.audience}</div>
+                <div class="blurb">{t.blurb}</div>
+              </td>
+              <td class="links">
+                <a href={t.html}>HTML</a>
+                <a href={t.txt}>.txt</a>
+                {t.preview && <a href={t.preview}>preview</a>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.06em;color:#57606a;margin:32px 0 8px;">Transactional (SendGrid) templates</h2>
+      <p style="margin:0 0 12px;color:#57606a;font-size:13px;">Custom emails sent from a Cloudflare Worker via SendGrid (Phase 5 work).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Template</th>
+            <th>Subject</th>
+            <th>Audience &amp; notes</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactionalTemplates.map((t) => (
             <tr>
               <td><a class="name" href={t.href}>{t.name}</a></td>
               <td><span class="subject">{t.subject}</span></td>
