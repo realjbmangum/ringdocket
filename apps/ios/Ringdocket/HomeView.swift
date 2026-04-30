@@ -9,6 +9,7 @@ import CallKit
 /// makes block list refresh ambient (BGAppRefreshTask in task 13). Until
 /// that's wired, the row is tappable to force a manual sync.
 struct HomeView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var stats: MyStatsResponse?
     @State private var pending: [PendingReport] = []
     @State private var network: NetworkStatsResponse?
@@ -39,6 +40,14 @@ struct HomeView: View {
             .refreshable { await loadAll() }
         }
         .task { await loadAll() }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Refresh whenever the app comes back to the foreground so
+            // the user sees current state without force-quitting. The
+            // .task modifier alone doesn't refire on background→foreground.
+            if newPhase == .active {
+                Task { await loadAll() }
+            }
+        }
         .sheet(isPresented: $showingReport) {
             ReportView()
                 .onDisappear {
@@ -420,6 +429,13 @@ struct HomeView: View {
             pending = (try await p).reports
             network = try await n
         } catch {
+            // Ignore cancellation — happens when the view is torn down
+            // mid-flight (auth state transition, app suspend). Showing
+            // "canceled" as a load error is misleading; the next view
+            // appearance will retry.
+            if (error as? URLError)?.code == .cancelled || error is CancellationError {
+                return
+            }
             loadError = error.localizedDescription
         }
 

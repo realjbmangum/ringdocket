@@ -13,7 +13,15 @@ actor APIClient {
     private let encoder: JSONEncoder
 
     private init() {
-        self.session = URLSession.shared
+        // Don't use URLSession.shared — it carries a default URLCache that
+        // can replay stale responses for up to 24h via heuristic freshness
+        // when the server omits Cache-Control. The worker now sends
+        // Cache-Control: no-store, but we belt-and-suspenders here so a
+        // bad past response can't survive on disk into a new session.
+        let config = URLSessionConfiguration.default
+        config.urlCache = nil
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        self.session = URLSession(configuration: config)
         self.decoder = JSONDecoder()
         self.encoder = JSONEncoder()
     }

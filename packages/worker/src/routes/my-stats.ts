@@ -70,7 +70,7 @@ export async function handleMyStats(req: Request, env: Env): Promise<Response> {
   const supabase = getServiceRoleSupabase(env);
   const weekStart = startOfWeekIso();
 
-  const [reportsAllTimeRes, reportsWeekRes, pendingRes, profileRes, recentCatsRes] =
+  const [reportsAllTimeRes, reportsWeekRes, pendingRes, firstFlagRes, recentCatsRes] =
     await Promise.all([
       supabase
         .from('reports')
@@ -85,11 +85,16 @@ export async function handleMyStats(req: Request, env: Env): Promise<Response> {
         .from('pending_reports')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId),
+      // Count first-flag credits live from reports.corroboration_sequence = 1
+      // — the web computes the same way. The users.first_flag_credit_count
+      // column was meant to be a denormalized counter but nothing ever
+      // increments it (no trigger writes it on corroboration). Reading the
+      // column always returned 0; the live count is the source of truth.
       supabase
-        .from('users')
-        .select('first_flag_credit_count')
-        .eq('id', userId)
-        .maybeSingle(),
+        .from('reports')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('corroboration_sequence', 1),
       supabase
         .from('reports')
         .select('category')
@@ -102,6 +107,7 @@ export async function handleMyStats(req: Request, env: Env): Promise<Response> {
     reportsAllTimeRes.error ??
     reportsWeekRes.error ??
     pendingRes.error ??
+    firstFlagRes.error ??
     recentCatsRes.error;
   if (firstErr) {
     return jsonError(500, 'internal', firstErr.message, undefined, req);
@@ -128,9 +134,7 @@ export async function handleMyStats(req: Request, env: Env): Promise<Response> {
     reportsAllTime: reportsAllTimeRes.count ?? 0,
     reportsThisWeek: reportsWeekRes.count ?? 0,
     pendingCount: pendingRes.count ?? 0,
-    firstFlagCredits:
-      (profileRes.data as { first_flag_credit_count?: number } | null)
-        ?.first_flag_credit_count ?? 0,
+    firstFlagCredits: firstFlagRes.count ?? 0,
     topCategory,
   };
 
