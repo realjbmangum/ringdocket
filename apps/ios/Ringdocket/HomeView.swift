@@ -90,7 +90,13 @@ struct HomeView: View {
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Brand.Color.inkPrimary)
                     if let last = lastSync {
-                        Text("\(last.numberCount.formatted()) numbers · \(last.relative)")
+                        // Show only freshness here. The canonical "numbers on
+                        // the list" count lives in the network ledger footer
+                        // — it's the live network total. The local snapshot
+                        // count can drift from network when numbers retire
+                        // between syncs, which made the two displayed values
+                        // look like a bug.
+                        Text("Synced \(last.relative)")
                             .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(Brand.Color.inkByline)
                     } else {
