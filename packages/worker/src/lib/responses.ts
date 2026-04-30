@@ -48,12 +48,27 @@ export function jsonError(
   });
 }
 
-/** Build a JSON Response with arbitrary body + status. */
-export function jsonOk<T>(body: T, status = 200, req?: Request): Response {
+/** Build a JSON Response with arbitrary body + status.
+ *
+ * Sends `Cache-Control: no-store` by default. Every API endpoint we ship
+ * is either user-specific (must not be cached cross-user by an edge or
+ * client) or live state we want fresh on every read (network stats,
+ * pending reports). Without this header iOS URLSession applied
+ * heuristic caching to user-state responses, which surfaced as "the web
+ * shows the new state but my phone still shows the old one." Routes
+ * that genuinely benefit from edge caching can opt in via the override.
+ */
+export function jsonOk<T>(
+  body: T,
+  status = 200,
+  req?: Request,
+  cacheControl: string = 'no-store',
+): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       'Content-Type': 'application/json',
+      'Cache-Control': cacheControl,
       ...(req ? corsHeadersFor(req) : {}),
     },
   });
