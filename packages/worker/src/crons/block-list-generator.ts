@@ -115,7 +115,11 @@ export async function generateBlockList(
   // each response at 1000 rows by default; paginate via .range() until a
   // short page signals we've read everything.
   const PAGE_SIZE = 1000;
-  const MAX_PAGES = 100; // 100k number hard cap — well above V1 expectations
+  // 500k number hard cap. iOS Call Directory Extensions can hold millions
+  // of numbers, so the real ceiling is far above this — but a hard cap
+  // keeps a runaway query from eating Worker CPU. Re-evaluate before
+  // crossing 400k to avoid silent truncation at the cap.
+  const MAX_PAGES = 500;
   const numbers: string[] = [];
   for (let page = 0; page < MAX_PAGES; page++) {
     const from = page * PAGE_SIZE;
