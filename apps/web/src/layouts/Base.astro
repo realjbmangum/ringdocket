@@ -6,11 +6,13 @@ import Footer from '../components/ui/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
+  robots?: string;
 }
 
 const {
   title = 'Ringdocket — the spam blocker that shows its work',
   description = 'A public ledger for the spam economy. Silence spam calls on your iPhone, then see who they were.',
+  robots,
 } = Astro.props;
 ---
 
@@ -21,6 +23,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <title>{title}</title>
     <link rel="preload" href="/fonts/bricolage-grotesque-variable.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="/fonts/newsreader-variable.ttf" as="font" type="font/ttf" crossorigin />

@@ -5,11 +5,15 @@
 # Supabase redirect allowlist stays scoped to app.ringdocket.com.
 #
 # Apex -> app.
+# Include trailing-slash variants: live GSC triage (2026-09-21) saw
+# /login → /login/ 200, so the slashless rule alone never fired.
 https://ringdocket.com/login         https://app.ringdocket.com/login         301
+https://ringdocket.com/login/        https://app.ringdocket.com/login         301
 https://ringdocket.com/app           https://app.ringdocket.com/app/home      301
 https://ringdocket.com/app/*         https://app.ringdocket.com/app/:splat    301
 
 # www -> app.
 https://www.ringdocket.com/login     https://app.ringdocket.com/login         301
+https://www.ringdocket.com/login/    https://app.ringdocket.com/login         301
 https://www.ringdocket.com/app       https://app.ringdocket.com/app/home      301
 https://www.ringdocket.com/app/*     https://app.ringdocket.com/app/:splat    301
